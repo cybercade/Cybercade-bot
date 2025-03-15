@@ -4,7 +4,7 @@ export const generalConfig: GeneralConfigType = {
 
 	name: 'tscord', // the name of your bot
 	description: '', // the description of your bot
-	defaultLocale: 'en', // default language of the bot, must be a valid locale
+	defaultLocale: 'de', // default language of the bot, must be a valid locale
 	ownerId: env.BOT_OWNER_ID,
 	timezone: 'Europe/Paris', // default TimeZone to well format and localize dates (logs, stats, etc)
 
