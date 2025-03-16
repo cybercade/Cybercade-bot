@@ -86,7 +86,7 @@ type RootTranslation = {
 			EMBED: {
 				/**
 				 * P​r​e​f​i​x​ ​c​h​a​n​g​e​d​ ​t​o​ ​`​{​p​r​e​f​i​x​}​`​.
-				 * @param {unknown} prefix
+				 * @param {string} prefix
 				 */
 				DESCRIPTION: RequiredParams<'prefix'>
 			}
@@ -99,7 +99,7 @@ type RootTranslation = {
 			EMBED: {
 				/**
 				 * M​a​i​n​t​e​n​a​n​c​e​ ​m​o​d​e​ ​s​e​t​ ​t​o​ ​`​{​s​t​a​t​e​}​`​.
-				 * @param {unknown} state
+				 * @param {string} state
 				 */
 				DESCRIPTION: RequiredParams<'state'>
 			}
@@ -140,7 +140,7 @@ type RootTranslation = {
 				TITLE: string
 				/**
 				 * {​c​a​t​e​g​o​r​y​}​ ​C​o​m​m​a​n​d​s
-				 * @param {unknown} category
+				 * @param {string} category
 				 */
 				CATEGORY_TITLE: RequiredParams<'category'>
 			}
@@ -151,7 +151,7 @@ type RootTranslation = {
 				TITLE: string
 				/**
 				 * {​c​a​t​e​g​o​r​y​}​ ​c​o​m​m​a​n​d​s
-				 * @param {unknown} category
+				 * @param {string} category
 				 */
 				CATEGORY_DESCRIPTION: RequiredParams<'category'>
 			}
@@ -163,11 +163,64 @@ type RootTranslation = {
 			DESCRIPTION: string
 			/**
 			 * {​m​e​m​b​e​r​}​ ​P​o​n​g​!​ ​T​h​e​ ​m​e​s​s​a​g​e​ ​r​o​u​n​d​-​t​r​i​p​ ​t​o​o​k​ ​{​t​i​m​e​}​m​s​.​{​h​e​a​r​t​b​e​a​t​}
-			 * @param {unknown} heartbeat
-			 * @param {unknown} member
-			 * @param {unknown} time
+			 * @param {string} heartbeat
+			 * @param {string} member
+			 * @param {number} time
 			 */
 			MESSAGE: RequiredParams<'heartbeat' | 'member' | 'time'>
+		}
+		CONFIG: {
+			/**
+			 * c​o​n​f​i​g
+			 */
+			NAME: string
+			/**
+			 * I​n​t​e​r​a​c​t​ ​w​i​t​h​ ​g​u​i​l​d​ ​s​e​t​t​i​n​g​s​.
+			 */
+			DESCRIPTION: string
+			SET: {
+				/**
+				 * s​e​t
+				 */
+				NAME: string
+				/**
+				 * C​o​n​f​i​g​u​r​e​ ​g​u​i​l​d​ ​s​e​t​t​i​n​g​s​.
+				 */
+				DESCRIPTION: string
+				PRIMARY_COLOR: {
+					/**
+					 * p​r​i​m​a​r​y​c​o​l​o​r
+					 */
+					NAME: string
+					/**
+					 * S​e​t​ ​t​h​e​ ​p​r​i​m​a​r​y​ ​c​o​l​o​r​ ​o​f​ ​t​h​e​ ​b​o​t​.
+					 */
+					DESCRIPTION: string
+					OPTIONS: {
+						COLOR: {
+							/**
+							 * n​e​w​_​c​o​l​o​r
+							 */
+							NAME: string
+							/**
+							 * T​h​e​ ​n​e​w​ ​p​r​i​m​a​r​y​ ​c​o​l​o​r​ ​o​f​ ​t​h​e​ ​b​o​t​.​ ​(​H​e​x​-​C​o​d​e​)
+							 */
+							DESCRIPTION: string
+						}
+						EMBED: {
+							/**
+							 * P​r​i​m​a​r​y​ ​c​o​l​o​r​ ​c​h​a​n​g​e​d​ ​t​o​ ​`​{​p​r​e​f​i​x​}​`​.
+							 * @param {string} prefix
+							 */
+							DESCRIPTION: RequiredParams<'prefix'>
+							/**
+							 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​v​a​l​i​d​ ​h​e​x​ ​c​o​l​o​r​ ​c​o​d​e​.
+							 */
+							REGEX_ERROR: string
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -245,7 +298,7 @@ export type TranslationFunctions = {
 				/**
 				 * Prefix changed to `{prefix}`.
 				 */
-				DESCRIPTION: (arg: { prefix: unknown }) => LocalizedString
+				DESCRIPTION: (arg: { prefix: string }) => LocalizedString
 			}
 		}
 		MAINTENANCE: {
@@ -257,7 +310,7 @@ export type TranslationFunctions = {
 				/**
 				 * Maintenance mode set to `{state}`.
 				 */
-				DESCRIPTION: (arg: { state: unknown }) => LocalizedString
+				DESCRIPTION: (arg: { state: string }) => LocalizedString
 			}
 		}
 		STATS: {
@@ -297,7 +350,7 @@ export type TranslationFunctions = {
 				/**
 				 * {category} Commands
 				 */
-				CATEGORY_TITLE: (arg: { category: unknown }) => LocalizedString
+				CATEGORY_TITLE: (arg: { category: string }) => LocalizedString
 			}
 			SELECT_MENU: {
 				/**
@@ -307,7 +360,7 @@ export type TranslationFunctions = {
 				/**
 				 * {category} commands
 				 */
-				CATEGORY_DESCRIPTION: (arg: { category: unknown }) => LocalizedString
+				CATEGORY_DESCRIPTION: (arg: { category: string }) => LocalizedString
 			}
 		}
 		PING: {
@@ -318,7 +371,59 @@ export type TranslationFunctions = {
 			/**
 			 * {member} Pong! The message round-trip took {time}ms.{heartbeat}
 			 */
-			MESSAGE: (arg: { heartbeat: unknown, member: unknown, time: unknown }) => LocalizedString
+			MESSAGE: (arg: { heartbeat: string, member: string, time: number }) => LocalizedString
+		}
+		CONFIG: {
+			/**
+			 * config
+			 */
+			NAME: () => LocalizedString
+			/**
+			 * Interact with guild settings.
+			 */
+			DESCRIPTION: () => LocalizedString
+			SET: {
+				/**
+				 * set
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Configure guild settings.
+				 */
+				DESCRIPTION: () => LocalizedString
+				PRIMARY_COLOR: {
+					/**
+					 * primarycolor
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Set the primary color of the bot.
+					 */
+					DESCRIPTION: () => LocalizedString
+					OPTIONS: {
+						COLOR: {
+							/**
+							 * new_color
+							 */
+							NAME: () => LocalizedString
+							/**
+							 * The new primary color of the bot. (Hex-Code)
+							 */
+							DESCRIPTION: () => LocalizedString
+						}
+						EMBED: {
+							/**
+							 * Primary color changed to `{prefix}`.
+							 */
+							DESCRIPTION: (arg: { prefix: string }) => LocalizedString
+							/**
+							 * Please provide a valid hex color code.
+							 */
+							REGEX_ERROR: () => LocalizedString
+						}
+					}
+				}
+			}
 		}
 	}
 }

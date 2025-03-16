@@ -13,16 +13,19 @@ export class Guild extends CustomBaseEntity {
 	[EntityRepositoryType]?: GuildRepository
 
 	@PrimaryKey({ autoincrement: false })
-    id!: string
+	id!: string
 
 	@Property({ nullable: true, type: 'string' })
-    prefix: string | null
+	prefix: string | null
+
+	@Property({ nullable: true, type: 'string' })
+	primaryColor: string | null
 
 	@Property()
-    deleted: boolean = false
+	deleted: boolean = false
 
 	@Property()
-    lastInteract: Date = new Date()
+	lastInteract: Date = new Date()
 
 }
 

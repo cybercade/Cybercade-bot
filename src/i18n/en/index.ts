@@ -65,6 +65,28 @@ const en = {
 			DESCRIPTION: 'Pong!',
 			MESSAGE: '{member:string} Pong! The message round-trip took {time:number}ms.{heartbeat:string}',
 		},
+		CONFIG: {
+			NAME: 'config',
+			DESCRIPTION: 'Interact with guild settings.',
+			SET: {
+				NAME: 'set',
+				DESCRIPTION: 'Configure guild settings.',
+				PRIMARY_COLOR: {
+					NAME: 'primarycolor',
+					DESCRIPTION: 'Set the primary color of the bot.',
+					OPTIONS: {
+						COLOR: {
+							NAME: 'new_color',
+							DESCRIPTION: 'The new primary color of the bot. (Hex-Code)',
+						},
+						EMBED: {
+							DESCRIPTION: 'Primary color changed to `{prefix:string}`.',
+							REGEX_ERROR: 'Please provide a valid hex color code.',
+						},
+					},
+				},
+			},
+		},
 	},
 } satisfies BaseTranslation
 

@@ -67,13 +67,34 @@ const de = {
 		},
 		RSS: {
 			SUBSCRIBE: {
-			  SUCCESS: (feed: string) => `RSS-Feed erfolgreich abonniert: ${feed}`,
-			  ERROR: "Beim Abonnieren des RSS-Feeds ist ein Fehler aufgetreten.",
+				SUCCESS: {
+
+				},
+				ERROR: 'Beim Abonnieren des RSS-Feeds ist ein Fehler aufgetreten.',
 			},
 			STATUS: {
-			  NO_ITEMS: "Im angegebenen RSS-Feed wurden keine Artikel gefunden.",
-			  ERROR: "Beim Abrufen des RSS-Feeds ist ein Fehler aufgetreten.",
-			}
+				NO_ITEMS: 'Im angegebenen RSS-Feed wurden keine Artikel gefunden.',
+				ERROR: 'Beim Abrufen des RSS-Feeds ist ein Fehler aufgetreten.',
+			},
+		},
+		CONFIG: {
+			GROUP_DESCRIPTION: 'Interact with guild settings.',
+			SET: {
+				GROUP_DESCRIPTION: 'Configure guild settings.',
+				PRIMARY_COLOR: {
+					DESCRIPTION: 'Set the primary color of the bot.',
+					OPTIONS: {
+						COLOR: {
+							NAME: 'new_color',
+							DESCRIPTION: 'The new primary color of the bot. (Hex-Code)',
+						},
+						EMBED: {
+							DESCRIPTION: 'Primary color changed to `{prefix}`.',
+							REGEX_ERROR: 'Please provide a valid hex color code.',
+						},
+					},
+				},
+			},
 		},
 	},
 } satisfies Translation
