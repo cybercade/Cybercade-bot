@@ -1,0 +1,15 @@
+meta {
+  name: Invite
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/bot/guilds/:id/invite
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}

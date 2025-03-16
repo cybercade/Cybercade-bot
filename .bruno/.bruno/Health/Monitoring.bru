@@ -1,0 +1,11 @@
+meta {
+  name: Monitoring
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/health/monitoring
+  body: none
+  auth: inherit
+}

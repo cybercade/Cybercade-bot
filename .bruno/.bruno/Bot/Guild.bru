@@ -1,0 +1,15 @@
+meta {
+  name: Guild
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/bot/guilds/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}

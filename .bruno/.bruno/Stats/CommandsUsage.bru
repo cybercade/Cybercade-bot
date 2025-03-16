@@ -1,0 +1,15 @@
+meta {
+  name: CommandsUsage
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/stats/commands/usage
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~numberOfDays: 
+}

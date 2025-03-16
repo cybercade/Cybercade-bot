@@ -1,0 +1,15 @@
+meta {
+  name: UsersAndGuilds
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/stats/usersAndGuilds
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~numberOfDays: 
+}

@@ -1,0 +1,11 @@
+meta {
+  name: GenerateBackup
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/database/backup
+  body: none
+  auth: inherit
+}

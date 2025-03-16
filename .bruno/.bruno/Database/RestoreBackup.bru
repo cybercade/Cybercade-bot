@@ -1,0 +1,17 @@
+meta {
+  name: RestoreBackup
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/database/restore
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "snapshotName": ""
+  }
+}

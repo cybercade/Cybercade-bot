@@ -1,0 +1,17 @@
+meta {
+  name: SetMaintenance
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/bot/maintenance
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "maintenance": ""
+  }
+}
