@@ -20,17 +20,16 @@ export const generalConfig: GeneralConfigType = {
 
 	automaticUploadImagesToImgur: false, // enable or not the automatic assets upload
 
-	devs: [], // discord IDs of the devs that are working on the bot (you don't have to put the owner's id here)
+	devs: [
+		'350897207261659137', // Lucas
+		'416308528274210828', // Jan
+	], // discord IDs of the devs that are working on the bot (you don't have to put the owner's id here)
 
 	// define the bot activities (phrases under its name). Types can be: PLAYING, LISTENING, WATCHING, STREAMING
 	activities: [
 		{
-			text: 'discord.js v14 with tscord',
-			type: 'PLAYING',
-		},
-		{
-			text: 'some knowledge',
-			type: 'STREAMING',
+			text: env.BOT_ACTIVITY_TEXT,
+			type: env.BOT_ACTIVITY_TYPE,
 		},
 	],
 

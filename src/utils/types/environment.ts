@@ -10,6 +10,8 @@ export const env = cleanEnv(process.env, {
 	BOT_TOKEN: str(),
 	TEST_GUILD_ID: str(),
 	BOT_OWNER_ID: str(),
+	BOT_ACTIVITY_TEXT: str(),
+	BOT_ACTIVITY_TYPE: str({ choices: ['PLAYING', 'LISTENING', 'WATCHING', 'STREAMING', 'CUSTOM', 'COMPETING'] }),
 
 	DATABASE_HOST: str({ default: undefined }),
 	DATABASE_PORT: num({ default: undefined }),
