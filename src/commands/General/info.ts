@@ -37,6 +37,8 @@ export default class InfoCommand {
 		interaction: CommandInteraction,
 		client: Client
 	) {
+		interaction.deferReply({ ephemeral: true })
+
 		const embed = new EmbedBuilder()
 			.setAuthor({
 				name: interaction.user.username,

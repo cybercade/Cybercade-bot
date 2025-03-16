@@ -24,6 +24,7 @@ export default class HelpCommand {
 		client: Client,
 		{ localize }: InteractionData
 	) {
+		interaction.deferReply({ ephemeral: true })
 		const embed = await this.getEmbed({ client, interaction, locale: localize })
 
 		const components: any[] = []
