@@ -65,6 +65,16 @@ const de = {
 			DESCRIPTION: 'Pong!',
 			MESSAGE: '{member} Pong! The message round-trip took {time}ms.{heartbeat}',
 		},
+		RSS: {
+			SUBSCRIBE: {
+			  SUCCESS: (feed: string) => `RSS-Feed erfolgreich abonniert: ${feed}`,
+			  ERROR: "Beim Abonnieren des RSS-Feeds ist ein Fehler aufgetreten.",
+			},
+			STATUS: {
+			  NO_ITEMS: "Im angegebenen RSS-Feed wurden keine Artikel gefunden.",
+			  ERROR: "Beim Abrufen des RSS-Feeds ist ein Fehler aufgetreten.",
+			}
+		},
 	},
 } satisfies Translation
 
