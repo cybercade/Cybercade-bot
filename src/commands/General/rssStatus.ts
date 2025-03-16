@@ -1,36 +1,43 @@
-// commands/rssStatus.ts
-import { SlashCommandBuilder, CommandInteraction } from 'discord.js';
-import { Logger } from 'tscord/logger';
+import { Category } from '@discordx/utilities';
+import { CommandInteraction, EmbedBuilder } from 'discord.js';
+import { Client } from 'discordx';
+import { Slash, Discord } from '@/decorators';
 import Parser from 'rss-parser';
 
 const parser = new Parser();
 
-const command = {
-  data: new SlashCommandBuilder()
-    .setName('rssstatus')
-    .setDescription('Zeigt den aktuellen Stand eines RSS-Feeds an.')
-    .addStringOption(option =>
-      option.setName('feedurl')
-        .setDescription('Die URL des RSS-Feeds')
-        .setRequired(true)),
-  async execute(interaction: CommandInteraction, logger: Logger): Promise<void> {
+@Discord()
+@Category('RSS')
+export default class RssStatusCommand {
+
+  @Slash({
+    name: 'rssstatus',
+  })
+  async rssstatus(
+    interaction: CommandInteraction,
+    client: Client,
+    { localize }: InteractionData
+  ): Promise<void> {
     const feedUrl = interaction.options.getString('feedurl', true);
-    logger.info(`rssstatus von ${interaction.user.tag} für Feed ${feedUrl}`);
     
     try {
       const feed = await parser.parseURL(feedUrl);
-      const latestItem = feed.items[0];
-      if (!latestItem) {
-        await interaction.reply('Der RSS-Feed enthält keine Artikel.');
+      if (!feed.items || feed.items.length === 0) {
+        await interaction.followUp('Im angegebenen RSS-Feed wurden keine Artikel gefunden.');
         return;
       }
-      const replyMessage = `Letzter Artikel: **${latestItem.title}**\nVeröffentlicht am: ${latestItem.pubDate || 'Unbekannt'}`;
-      await interaction.reply(replyMessage);
+      const latestItem = feed.items[0];
+      
+      const embed = new EmbedBuilder()
+        .setTitle(latestItem.title || 'Unbekannter Titel')
+        .setDescription(latestItem.contentSnippet || 'Keine Beschreibung vorhanden.')
+        .addFields({ name: 'Veröffentlicht am', value: latestItem.pubDate || 'Unbekannt', inline: true })
+        .setColor(0x00AE86)
+        .setFooter({ text: 'Powered by DiscBot Team ❤' });
+      
+      await interaction.followUp({ embeds: [embed] });
     } catch (error) {
-      logger.error('Fehler bei rssstatus:', error);
-      await interaction.reply({ content: 'Beim Abrufen des RSS-Feeds ist ein Fehler aufgetreten.', ephemeral: true });
+      await interaction.followUp({ content: 'Beim Abrufen des RSS-Feeds ist ein Fehler aufgetreten.', ephemeral: true });
     }
-  },
-};
-
-export default command;
+  }
+}
