@@ -45,7 +45,7 @@
     "@tsed/schema": "^7.84.1",
     "@tsed/swagger": "^7.84.1",
     "archiver": "^7.0.1",
-    "axios": "~1.7.9",
+    "axios": "~1.8.2",
     "body-parser": "^1.20.3",
     "boxen": "~5.1.2",
     "case": "~1.6.3",
