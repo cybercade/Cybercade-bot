@@ -20,7 +20,7 @@ export default class InviteCommand {
 		client: Client,
 		{ localize }: InteractionData
 	) {
-		interaction.deferReply({ ephemeral: true })
+		await interaction.deferReply({ ephemeral: true })
 
 		const embed = new EmbedBuilder()
 			.setTitle(localize.COMMANDS.INVITE.EMBED.TITLE())
@@ -28,9 +28,7 @@ export default class InviteCommand {
 			.setColor(getColor('primary'))
 			.setFooter({ text: 'Powered by DiscBot Team ❤' })
 
-		interaction.followUp({
-			embeds: [embed],
-		})
+		await interaction.editReply({embeds: [embed]})
 	}
 
 }
