@@ -57,6 +57,7 @@ export default class StatsCommand {
 			client: Client,
 			{ localize }: InteractionData
 	) {
+		interaction.deferReply({ ephemeral: true })
 		const embeds: EmbedBuilder[] = []
 
 		for (const stat of statsResolver) {

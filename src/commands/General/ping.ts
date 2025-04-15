@@ -16,6 +16,8 @@ export default class PingCommand {
 		client: Client,
 		{ localize }: InteractionData
 	) {
+		interaction.deferReply({ ephemeral: true })
+
 		const msg = (await interaction.followUp({ content: 'Pinging...', fetchReply: true })) as Message
 
 		const content = localize.COMMANDS.PING.MESSAGE({

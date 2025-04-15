@@ -33,6 +33,8 @@ export default class PrefixCommand {
 			client: Client,
 			{ localize }: InteractionData
 	) {
+		interaction.deferReply({ ephemeral: true })
+
 		const guild = resolveGuild(interaction)
 		const guildData = await this.db.get(Guild).findOne({ id: guild?.id || '' })
 
