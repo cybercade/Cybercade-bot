@@ -67,13 +67,15 @@ const de = {
 		},
 		RSS: {
 			SUBSCRIBE: {
-			  SUCCESS: (feed: string) => `RSS-Feed erfolgreich abonniert: ${feed}`,
-			  ERROR: "Beim Abonnieren des RSS-Feeds ist ein Fehler aufgetreten.",
+				SUCCESS: {
+
+				},
+				ERROR: 'Beim Abonnieren des RSS-Feeds ist ein Fehler aufgetreten.',
 			},
 			STATUS: {
-			  NO_ITEMS: "Im angegebenen RSS-Feed wurden keine Artikel gefunden.",
-			  ERROR: "Beim Abrufen des RSS-Feeds ist ein Fehler aufgetreten.",
-			}
+				NO_ITEMS: 'Im angegebenen RSS-Feed wurden keine Artikel gefunden.',
+				ERROR: 'Beim Abrufen des RSS-Feeds ist ein Fehler aufgetreten.',
+			},
 		},
 	},
 } satisfies Translation

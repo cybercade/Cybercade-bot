@@ -86,7 +86,7 @@ type RootTranslation = {
 			EMBED: {
 				/**
 				 * P​r​e​f​i​x​ ​c​h​a​n​g​e​d​ ​t​o​ ​`​{​p​r​e​f​i​x​}​`​.
-				 * @param {unknown} prefix
+				 * @param {string} prefix
 				 */
 				DESCRIPTION: RequiredParams<'prefix'>
 			}
@@ -99,7 +99,7 @@ type RootTranslation = {
 			EMBED: {
 				/**
 				 * M​a​i​n​t​e​n​a​n​c​e​ ​m​o​d​e​ ​s​e​t​ ​t​o​ ​`​{​s​t​a​t​e​}​`​.
-				 * @param {unknown} state
+				 * @param {string} state
 				 */
 				DESCRIPTION: RequiredParams<'state'>
 			}
@@ -140,7 +140,7 @@ type RootTranslation = {
 				TITLE: string
 				/**
 				 * {​c​a​t​e​g​o​r​y​}​ ​C​o​m​m​a​n​d​s
-				 * @param {unknown} category
+				 * @param {string} category
 				 */
 				CATEGORY_TITLE: RequiredParams<'category'>
 			}
@@ -151,7 +151,7 @@ type RootTranslation = {
 				TITLE: string
 				/**
 				 * {​c​a​t​e​g​o​r​y​}​ ​c​o​m​m​a​n​d​s
-				 * @param {unknown} category
+				 * @param {string} category
 				 */
 				CATEGORY_DESCRIPTION: RequiredParams<'category'>
 			}
@@ -163,9 +163,9 @@ type RootTranslation = {
 			DESCRIPTION: string
 			/**
 			 * {​m​e​m​b​e​r​}​ ​P​o​n​g​!​ ​T​h​e​ ​m​e​s​s​a​g​e​ ​r​o​u​n​d​-​t​r​i​p​ ​t​o​o​k​ ​{​t​i​m​e​}​m​s​.​{​h​e​a​r​t​b​e​a​t​}
-			 * @param {unknown} heartbeat
-			 * @param {unknown} member
-			 * @param {unknown} time
+			 * @param {string} heartbeat
+			 * @param {string} member
+			 * @param {number} time
 			 */
 			MESSAGE: RequiredParams<'heartbeat' | 'member' | 'time'>
 		}
@@ -245,7 +245,7 @@ export type TranslationFunctions = {
 				/**
 				 * Prefix changed to `{prefix}`.
 				 */
-				DESCRIPTION: (arg: { prefix: unknown }) => LocalizedString
+				DESCRIPTION: (arg: { prefix: string }) => LocalizedString
 			}
 		}
 		MAINTENANCE: {
@@ -257,7 +257,7 @@ export type TranslationFunctions = {
 				/**
 				 * Maintenance mode set to `{state}`.
 				 */
-				DESCRIPTION: (arg: { state: unknown }) => LocalizedString
+				DESCRIPTION: (arg: { state: string }) => LocalizedString
 			}
 		}
 		STATS: {
@@ -297,7 +297,7 @@ export type TranslationFunctions = {
 				/**
 				 * {category} Commands
 				 */
-				CATEGORY_TITLE: (arg: { category: unknown }) => LocalizedString
+				CATEGORY_TITLE: (arg: { category: string }) => LocalizedString
 			}
 			SELECT_MENU: {
 				/**
@@ -307,7 +307,7 @@ export type TranslationFunctions = {
 				/**
 				 * {category} commands
 				 */
-				CATEGORY_DESCRIPTION: (arg: { category: unknown }) => LocalizedString
+				CATEGORY_DESCRIPTION: (arg: { category: string }) => LocalizedString
 			}
 		}
 		PING: {
@@ -318,7 +318,7 @@ export type TranslationFunctions = {
 			/**
 			 * {member} Pong! The message round-trip took {time}ms.{heartbeat}
 			 */
-			MESSAGE: (arg: { heartbeat: unknown, member: unknown, time: unknown }) => LocalizedString
+			MESSAGE: (arg: { heartbeat: string, member: string, time: number }) => LocalizedString
 		}
 	}
 }
