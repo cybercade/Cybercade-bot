@@ -15,4 +15,7 @@ export class RssSubscription extends CustomBaseEntity {
 
   @Property()
   feedUrl!: string;
+
+  @Property()
+  lastItem: string;
 }

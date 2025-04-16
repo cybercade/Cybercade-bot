@@ -386,6 +386,16 @@
           "nullable": false,
           "length": null,
           "mappedType": "text"
+        },
+        "last_item": {
+          "name": "last_item",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
         }
       },
       "name": "rss_subscription",
