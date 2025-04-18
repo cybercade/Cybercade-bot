@@ -50,8 +50,10 @@ export default class ReadyEvent {
 		// the bot is fully ready
 		this.store.update('ready', e => ({ ...e, bot: true }))
 
-		// start the music queue
-		lavaPlayerManager.instance = new QueueManager(getNode(client))
+		// start the music queue if music player is enabled
+		if (generalConfig.musicPlayer === true) {
+			lavaPlayerManager.instance = new QueueManager(getNode(client))
+		}
 	}
 
 	@Schedule('*/15 * * * * *') // each 15 seconds

@@ -18,6 +18,8 @@ export const generalConfig: GeneralConfigType = {
 		gitRemoteRepo: 'https://github.com/cybercade/cybercade-bot',
 	},
 
+	musicPlayer: true, // enable or not the music player (Lavalink)
+
 	automaticUploadImagesToImgur: false, // enable or not the automatic assets upload
 
 	devs: [

@@ -22,6 +22,10 @@ export const env = cleanEnv(process.env, {
 	API_PORT: num({ default: undefined }),
 	API_ADMIN_TOKEN: str({ default: undefined }),
 
+	LAVA_HOST: str({ default: undefined }),
+	LAVA_PORT: num({ default: undefined }),
+	LAVA_PASSWORD: str({ default: undefined }),
+
 	IMGUR_CLIENT_ID: str({ default: undefined }),
 })
 
@@ -44,6 +48,14 @@ export function checkEnvironmentVariables() {
 		cleanEnv(process.env, {
 			API_PORT: num(),
 			API_ADMIN_TOKEN: str(),
+		})
+	}
+
+	if (generalConfig.musicPlayer === true) {
+		cleanEnv(process.env, {
+			LAVA_HOST: str(),
+			LAVA_PORT: num(),
+			LAVA_PASSWORD: str(),
 		})
 	}
 

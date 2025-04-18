@@ -7,6 +7,7 @@ import { GatewayDispatchEvents } from 'discord.js'
 import type { Client } from 'discordx'
 
 import { Service } from '@/decorators'
+import { env } from '@/env'
 
 @Service()
 export class MusicNode {
@@ -14,14 +15,14 @@ export class MusicNode {
 	public getNode(client: Client): Node {
 		const nodeX = new Node({
 			host: {
-				address: 'lava.inzeworld.com',
-				connectionOptions: { sessionId: client.botId, passphrase: 'saher.inzeworld.com' },
-				port: 3128,
+				address: env.LAVA_HOST ?? 'localhost',
+				connectionOptions: { sessionId: client.botId },
+				port: env.LAVA_PORT ? Number(env.LAVA_PORT) : 2333,
 				secure: false,
 			},
 
 			// your Lavalink password
-			password: 'saher.inzeworld.com',
+			password: env.LAVA_PASSWORD ?? 'youshallnotpass',
 
 			send(guildId, packet) {
 				const guild = client.guilds.cache.get(guildId)
@@ -31,8 +32,6 @@ export class MusicNode {
 			},
 			userId: client.user?.id ?? '', // the user id of your bot
 		})
-
-		console.log(nodeX)
 
 		client.ws.on(
 			GatewayDispatchEvents.VoiceStateUpdate,

@@ -5,6 +5,7 @@ type GeneralConfigType = {
 	defaultLocale: import('@/i18n').Locales
 	ownerId: string
 	timezone: string
+	musicPlayer: boolean
 	automaticUploadImagesToImgur: boolean
 
 	simpleCommandsPrefix: string
