@@ -58,6 +58,10 @@ type RootTranslation = {
 			 * T​h​e​r​e​ ​i​s​ ​n​o​ ​n​e​x​t​ ​t​r​a​c​k​ ​i​n​ ​t​h​i​s​ ​s​e​r​v​e​r​.
 			 */
 			NO_NEXT_TRACK: string
+			/**
+			 * T​h​e​r​e​ ​i​s​ ​n​o​ ​q​u​e​u​e​ ​f​o​r​ ​t​h​i​s​ ​s​e​r​v​e​r​.
+			 */
+			NO_QUEUE: string
 		}
 	}
 	SHARED: {
@@ -549,6 +553,10 @@ export type TranslationFunctions = {
 			 * There is no next track in this server.
 			 */
 			NO_NEXT_TRACK: () => LocalizedString
+			/**
+			 * There is no queue for this server.
+			 */
+			NO_QUEUE: () => LocalizedString
 		}
 	}
 	SHARED: {
