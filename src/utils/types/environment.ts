@@ -27,6 +27,12 @@ export const env = cleanEnv(process.env, {
 	LAVA_PASSWORD: str({ default: undefined }),
 
 	IMGUR_CLIENT_ID: str({ default: undefined }),
+
+	ARISCORP_FOUNDERS_ROLE_ID: str({ default: undefined }),
+	ARISCORP_MANAGEMENT_ROLE_ID: str({ default: undefined }),
+	ARISCORP_APPLICANT_ROLE_ID: str({ default: undefined }),
+	ARISCORP_BOT_ROLE_ID: str({ default: undefined }),
+	ARISCORP_INTERNAL_CHANNEL_ID: str({ default: undefined }),
 })
 
 export function checkEnvironmentVariables() {

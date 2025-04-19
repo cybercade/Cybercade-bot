@@ -342,6 +342,77 @@ type RootTranslation = {
 				NO_PLAYLIST_TRACKS: string
 			}
 		}
+		APPLICATION: {
+			/**
+			 * A​p​p​l​i​c​a​t​i​o​n
+			 */
+			MODAL_TITLE: string
+			/**
+			 * N​a​m​e
+			 */
+			MODAL_INPUT_NAME: string
+			/**
+			 * R​e​a​l​ ​N​a​m​e
+			 */
+			MODAL_INPUT_REAL_NAME: string
+			/**
+			 * H​a​n​d​l​e​r
+			 */
+			MODAL_INPUT_HANDLER: string
+			/**
+			 * A​p​p​l​i​c​a​t​i​o​n
+			 */
+			MODAL_INPUT_APPLICATION: string
+			/**
+			 * T​e​l​l​ ​u​s​ ​a​b​o​u​t​ ​y​o​u​r​s​e​l​f​!
+			 */
+			MODAL_INPUT_APPLICATION_PLACEHOLDER: string
+			/**
+			 * a​p​p​l​i​c​a​t​i​o​n
+			 */
+			CHANNEL_PREFIX: string
+			/**
+			 * A​p​p​l​i​c​a​t​i​o​n​ ​f​r​o​m
+			 */
+			APPLICATION_PREFIX: string
+			/**
+			 * A​c​c​e​p​t
+			 */
+			ACCEPT: string
+			/**
+			 * R​e​j​e​c​t
+			 */
+			REJECT: string
+			/**
+			 * A​p​p​l​i​c​a​t​i​o​n​ ​s​u​c​c​e​s​s​f​u​l​l​y​ ​s​u​b​m​i​t​t​e​d​!
+			 */
+			APPLICATION_SUCCESS: string
+			/**
+			 * Y​o​u​ ​h​a​v​e​ ​b​e​e​n​ ​a​c​c​e​p​t​e​d​ ​a​s​ ​a​n​ ​a​p​p​l​i​c​a​n​t​!
+			 */
+			ACCEPTED_MESSAGE: string
+			/**
+			 * Y​o​u​ ​h​a​v​e​ ​b​e​e​n​ ​r​e​j​e​c​t​e​d​ ​a​s​ ​a​n​ ​a​p​p​l​i​c​a​n​t​!
+			 */
+			REJECTED_MESSAGE: string
+			/**
+			 * H​e​l​l​o​ ​e​v​e​r​y​o​n​e​ ​a​t​ ​A​r​i​s​C​o​r​p​,​
+		​
+		​w​e​ ​h​a​v​e​ ​<​@​{​u​s​e​r​_​i​d​}​>​ ​a​s​ ​n​e​w​ ​a​p​p​l​i​c​a​n​t​!
+			 * @param {unknown} user_id
+			 */
+			ANNOUNCE_APPLICANT: RequiredParams<'user_id'>
+		}
+		APPLICATION_INFO: {
+			/**
+			 * N​/​A
+			 */
+			INFO: string
+			/**
+			 * A​p​p​l​y
+			 */
+			BUTTON_APPLY: string
+		}
 	}
 }
 
@@ -664,6 +735,76 @@ export type TranslationFunctions = {
 				 */
 				NO_PLAYLIST_TRACKS: () => LocalizedString
 			}
+		}
+		APPLICATION: {
+			/**
+			 * Application
+			 */
+			MODAL_TITLE: () => LocalizedString
+			/**
+			 * Name
+			 */
+			MODAL_INPUT_NAME: () => LocalizedString
+			/**
+			 * Real Name
+			 */
+			MODAL_INPUT_REAL_NAME: () => LocalizedString
+			/**
+			 * Handler
+			 */
+			MODAL_INPUT_HANDLER: () => LocalizedString
+			/**
+			 * Application
+			 */
+			MODAL_INPUT_APPLICATION: () => LocalizedString
+			/**
+			 * Tell us about yourself!
+			 */
+			MODAL_INPUT_APPLICATION_PLACEHOLDER: () => LocalizedString
+			/**
+			 * application
+			 */
+			CHANNEL_PREFIX: () => LocalizedString
+			/**
+			 * Application from
+			 */
+			APPLICATION_PREFIX: () => LocalizedString
+			/**
+			 * Accept
+			 */
+			ACCEPT: () => LocalizedString
+			/**
+			 * Reject
+			 */
+			REJECT: () => LocalizedString
+			/**
+			 * Application successfully submitted!
+			 */
+			APPLICATION_SUCCESS: () => LocalizedString
+			/**
+			 * You have been accepted as an applicant!
+			 */
+			ACCEPTED_MESSAGE: () => LocalizedString
+			/**
+			 * You have been rejected as an applicant!
+			 */
+			REJECTED_MESSAGE: () => LocalizedString
+			/**
+			 * Hello everyone at ArisCorp,
+	
+		we have <@{user_id}> as new applicant!
+			 */
+			ANNOUNCE_APPLICANT: (arg: { user_id: unknown }) => LocalizedString
+		}
+		APPLICATION_INFO: {
+			/**
+			 * N/A
+			 */
+			INFO: () => LocalizedString
+			/**
+			 * Apply
+			 */
+			BUTTON_APPLY: () => LocalizedString
 		}
 	}
 }

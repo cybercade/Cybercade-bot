@@ -120,6 +120,42 @@ const de = {
 				NO_PLAYLIST_TRACKS: 'No tracks found in the playlist',
 			},
 		},
+		APPLICATION: {
+			MODAL_TITLE: 'Bewerbung',
+			MODAL_INPUT_NAME: 'Fiktiver Name',
+			MODAL_INPUT_HANDLER: 'RSI Handle',
+			MODAL_INPUT_APPLICATION: 'Bewerbung',
+			MODAL_INPUT_APPLICATION_PLACEHOLDER: 'Erzähle uns etwas über dich!',
+			CHANNEL_PREFIX: 'bewerbung',
+			APPLICATION_PREFIX: 'Bewerbung von',
+			ACCEPT: 'Akzeptieren',
+			REJECT: 'Ablehnen',
+			APPLICATION_SUCCESS: 'Bewerbung erfolgreich eingereicht!',
+			MODAL_INPUT_REAL_NAME: 'Realer Vorname',
+			ACCEPTED_MESSAGE: `**Herzlichen Glückwunsch, deine Bewerbung wurde angenommen!
+Willkommen in der ArisCorp!**`,
+			REJECTED_MESSAGE: 'Leider wurde deine Bewerbung abgelehnt.',
+			ANNOUNCE_APPLICANT: `Hallo an alle Mitarbeiter der ArisCorp,
+
+wir haben <@{user_id}> als neuen Anwärter gewonnen. Heißt ihn herzlich willkommen!`,
+		},
+		APPLICATION_INFO: {
+			INFO: `🎚️ • Benutzung:
+
+• Klicke auf "Bewerben", oder gebe den Befehl "/bewerben" ein.
+• Nun öffnet sich ein Pop-Up in dem du folgende Infos eingibst:
+  **-** Deinen fiktiven Namen (optional, dein echter Name)
+  **-** Deinen RSI-Handle
+  **-** Deine Bewerbung
+• Nachdem du auf "Absenden" klickst, öffnet sich ein Kanal mit deiner Bewerbung.
+• Jemand von unserem Recruitment-Team wird schnellstmöglich mit dir in Kontakt treten.
+
+» **INFORMATION: Die ArisCorp hat eine Charter. Wir erwarten von jedem, der Teil der ArisCorp werden will, dass die Charter beachtet wird.**
+*Diese ist unter https://ariscorp.de zu finden*
+
+» Bitte habe Verständnis dafür, dass es zu Verzögerungen kommen kann. Du kannst jederzeit deine Bewerbung einsenden und sie bleibt so lange bestehen, bis sich jemand darum kümmert.`,
+			BUTTON_APPLY: 'Bewerben',
+		},
 	},
 } satisfies Translation
 
