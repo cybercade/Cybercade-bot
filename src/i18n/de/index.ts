@@ -156,6 +156,28 @@ wir haben <@{user_id}> als neuen Anwärter gewonnen. Heißt ihn herzlich willkom
 » Bitte habe Verständnis dafür, dass es zu Verzögerungen kommen kann. Du kannst jederzeit deine Bewerbung einsenden und sie bleibt so lange bestehen, bis sich jemand darum kümmert.`,
 			BUTTON_APPLY: 'Bewerben',
 		},
+		CONFIG: {
+			NAME: 'config',
+			DESCRIPTION: 'Interact with guild settings.',
+			SET: {
+				NAME: 'set',
+				DESCRIPTION: 'Configure guild settings.',
+				PRIMARY_COLOR: {
+					NAME: 'primarycolor',
+					DESCRIPTION: 'Set the primary color of the bot.',
+					OPTIONS: {
+						COLOR: {
+							NAME: 'new_color',
+							DESCRIPTION: 'The new primary color of the bot. (Hex-Code)',
+						},
+						EMBED: {
+							DESCRIPTION: 'Primary color changed to `{prefix}`.',
+							REGEX_ERROR: 'Please provide a valid hex color code.',
+						},
+					},
+				},
+			},
+		},
 	},
 } satisfies Translation
 

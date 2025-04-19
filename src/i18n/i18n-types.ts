@@ -413,6 +413,59 @@ type RootTranslation = {
 			 */
 			BUTTON_APPLY: string
 		}
+		CONFIG: {
+			/**
+			 * c​o​n​f​i​g
+			 */
+			NAME: string
+			/**
+			 * I​n​t​e​r​a​c​t​ ​w​i​t​h​ ​g​u​i​l​d​ ​s​e​t​t​i​n​g​s​.
+			 */
+			DESCRIPTION: string
+			SET: {
+				/**
+				 * s​e​t
+				 */
+				NAME: string
+				/**
+				 * C​o​n​f​i​g​u​r​e​ ​g​u​i​l​d​ ​s​e​t​t​i​n​g​s​.
+				 */
+				DESCRIPTION: string
+				PRIMARY_COLOR: {
+					/**
+					 * p​r​i​m​a​r​y​c​o​l​o​r
+					 */
+					NAME: string
+					/**
+					 * S​e​t​ ​t​h​e​ ​p​r​i​m​a​r​y​ ​c​o​l​o​r​ ​o​f​ ​t​h​e​ ​b​o​t​.
+					 */
+					DESCRIPTION: string
+					OPTIONS: {
+						COLOR: {
+							/**
+							 * n​e​w​_​c​o​l​o​r
+							 */
+							NAME: string
+							/**
+							 * T​h​e​ ​n​e​w​ ​p​r​i​m​a​r​y​ ​c​o​l​o​r​ ​o​f​ ​t​h​e​ ​b​o​t​.​ ​(​H​e​x​-​C​o​d​e​)
+							 */
+							DESCRIPTION: string
+						}
+						EMBED: {
+							/**
+							 * P​r​i​m​a​r​y​ ​c​o​l​o​r​ ​c​h​a​n​g​e​d​ ​t​o​ ​`​{​p​r​e​f​i​x​}​`​.
+							 * @param {string} prefix
+							 */
+							DESCRIPTION: RequiredParams<'prefix'>
+							/**
+							 * P​l​e​a​s​e​ ​p​r​o​v​i​d​e​ ​a​ ​v​a​l​i​d​ ​h​e​x​ ​c​o​l​o​r​ ​c​o​d​e​.
+							 */
+							REGEX_ERROR: string
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -805,6 +858,58 @@ export type TranslationFunctions = {
 			 * Apply
 			 */
 			BUTTON_APPLY: () => LocalizedString
+		}
+		CONFIG: {
+			/**
+			 * config
+			 */
+			NAME: () => LocalizedString
+			/**
+			 * Interact with guild settings.
+			 */
+			DESCRIPTION: () => LocalizedString
+			SET: {
+				/**
+				 * set
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Configure guild settings.
+				 */
+				DESCRIPTION: () => LocalizedString
+				PRIMARY_COLOR: {
+					/**
+					 * primarycolor
+					 */
+					NAME: () => LocalizedString
+					/**
+					 * Set the primary color of the bot.
+					 */
+					DESCRIPTION: () => LocalizedString
+					OPTIONS: {
+						COLOR: {
+							/**
+							 * new_color
+							 */
+							NAME: () => LocalizedString
+							/**
+							 * The new primary color of the bot. (Hex-Code)
+							 */
+							DESCRIPTION: () => LocalizedString
+						}
+						EMBED: {
+							/**
+							 * Primary color changed to `{prefix}`.
+							 */
+							DESCRIPTION: (arg: { prefix: string }) => LocalizedString
+							/**
+							 * Please provide a valid hex color code.
+							 */
+							REGEX_ERROR: () => LocalizedString
+						}
+					}
+				}
+			}
 		}
 	}
 }
