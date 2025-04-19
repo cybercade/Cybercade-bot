@@ -372,7 +372,15 @@ export class MusicQueue extends Queue {
 			})
 			.setTitle(this.currentPlaybackTrack.info.title)
 			.setDescription(`Requested by: <@${this.currentPlaybackTrack.userData?.requester}>\n\n${getPlayerUi(this)}`)
-			.addFields(
+			.setColor(guildData?.color ? Number.parseInt(guildData.color.replace('#', ''), 16) : '#2600ff')
+			.setFooter({
+				text: client.user?.username ?? 'Cyberca.de Bot',
+				iconURL: client.user?.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/1.png',
+			})
+			.setTimestamp()
+
+		if (this.tracks[0]) {
+			embed.addFields(
 				{
 					name: `:notes: ${L[locale].SHARED.MUSIC.EMBED.QUEUE()}`,
 					value: `${this.tracks.map((track, index) => `\`${index}.\` ${track.info.title} \`${fromMS(track.info.length)}\``).join('\n')}`,
@@ -394,12 +402,7 @@ export class MusicQueue extends Queue {
 					inline: true,
 				}
 			)
-			.setColor(guildData?.color ? Number.parseInt(guildData.color.replace('#', ''), 16) : '#2600ff')
-			.setFooter({
-				text: client.user?.username ?? 'Cyberca.de Bot',
-				iconURL: client.user?.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/1.png',
-			})
-			.setTimestamp()
+		}
 
 		if (this.currentPlaybackTrack.info.artworkUrl) embed.setThumbnail(this.currentPlaybackTrack.info.artworkUrl)
 		if (this.currentPlaybackTrack.info.uri) embed.setURL(this.currentPlaybackTrack.info.uri)
