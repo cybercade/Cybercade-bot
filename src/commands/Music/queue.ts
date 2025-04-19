@@ -6,7 +6,7 @@ import { Client } from 'discordx'
 import { lavaPlayerManager } from 'src/services/MusicManager'
 
 import { generalConfig } from '@/configs'
-import { Discord, Injectable, Slash } from '@/decorators'
+import { Discord, Injectable, Slash, SlashGroup } from '@/decorators'
 import { Guild } from '@/entities'
 import { Database } from '@/services'
 import { simpleErrorEmbed } from '@/utils/functions'
@@ -14,6 +14,7 @@ import { simpleErrorEmbed } from '@/utils/functions'
 @Discord()
 @Injectable()
 @Category('General')
+@SlashGroup('music')
 export default class QueueCommand {
 
 	constructor(

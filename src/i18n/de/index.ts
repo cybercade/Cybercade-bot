@@ -43,6 +43,7 @@ const de = {
 				CURRENT_PLAYING: 'Current playing',
 				PAGE: 'Page',
 				STOPPED_PLAYING: 'Stopped playing',
+				SKIPPED: 'Skipped to the next song!',
 			},
 		},
 	},

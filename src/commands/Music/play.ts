@@ -6,7 +6,7 @@ import { Client } from 'discordx'
 import { lavaPlayerManager } from 'src/services/MusicManager'
 
 import { generalConfig } from '@/configs'
-import { Discord, Injectable, Slash, SlashOption } from '@/decorators'
+import { Discord, Injectable, Slash, SlashChoice, SlashGroup, SlashOption } from '@/decorators'
 import { Guild } from '@/entities'
 import { Database } from '@/services'
 import { simpleErrorEmbed } from '@/utils/functions'
@@ -14,6 +14,7 @@ import { simpleErrorEmbed } from '@/utils/functions'
 @Discord()
 @Injectable()
 @Category('General')
+@SlashGroup('music')
 export default class PlayCommand {
 
 	constructor(
@@ -34,6 +35,21 @@ export default class PlayCommand {
 			type: ApplicationCommandOptionType.String,
 		})
 		input: string,
+		@SlashChoice({
+			name: 'Als letztes',
+			value: 'end',
+		})
+		@SlashChoice({
+			name: 'Als nächstes',
+			value: 'start',
+		})
+		@SlashOption({
+			description: 'position',
+			name: 'position',
+			type: ApplicationCommandOptionType.String,
+			required: false,
+		})
+		position: string,
 		interaction: CommandInteraction,
 		client: Client,
 		{ localize }: InteractionData
@@ -86,7 +102,11 @@ export default class PlayCommand {
 				return
 			}
 
-			queue.addTrack({ ...track, userData: { requester: interaction.user.id } })
+			if (position === 'start') {
+				queue.addTrackFirst({ ...track, userData: { requester: interaction.user.id } })
+			} else {
+				queue.addTrack({ ...track, userData: { requester: interaction.user.id } })
+			}
 
 			const embed = new EmbedBuilder()
 				.setAuthor({
@@ -126,7 +146,11 @@ export default class PlayCommand {
 
 		// Handle playlists
 		if (loadType === LoadType.PLAYLIST) {
-			queue.addTrack(...data.tracks.map(track => ({ ...track, userData: { requester: interaction.user.id } })))
+			if (position === 'start') {
+				queue.addTrackFirst(...data.tracks.map(track => ({ ...track, userData: { requester: interaction.user.id } })))
+			} else {
+				queue.addTrack(...data.tracks.map(track => ({ ...track, userData: { requester: interaction.user.id } })))
+			}
 
 			const embed = new EmbedBuilder()
 				.setAuthor({

@@ -149,9 +149,13 @@ type RootTranslation = {
 				 */
 				PAGE: string
 				/**
-				 * S​t​o​p​p​e​d​ ​p​l​a​y​i​n​g
+				 * S​t​o​p​p​e​d​ ​p​l​a​y​i​n​g​!
 				 */
 				STOPPED_PLAYING: string
+				/**
+				 * S​k​i​p​p​e​d​ ​t​o​ ​t​h​e​ ​n​e​x​t​ ​s​o​n​g​!
+				 */
+				SKIPPED: string
 			}
 		}
 	}
@@ -476,9 +480,13 @@ export type TranslationFunctions = {
 				 */
 				PAGE: () => LocalizedString
 				/**
-				 * Stopped playing
+				 * Stopped playing!
 				 */
 				STOPPED_PLAYING: () => LocalizedString
+				/**
+				 * Skipped to the next song!
+				 */
+				SKIPPED: () => LocalizedString
 			}
 		}
 	}
