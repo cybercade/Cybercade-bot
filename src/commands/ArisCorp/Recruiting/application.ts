@@ -1,6 +1,6 @@
 import { Category } from '@discordx/utilities'
 import { ButtonInteraction, CommandInteraction, ModalSubmitInteraction, TextChannel } from 'discord.js'
-import { Client, ComponentOptions, Guard } from 'discordx'
+import { Client, ComponentOptions, Guard, Guild } from 'discordx'
 
 import { ButtonComponent, Discord, ModalComponent, Slash } from '@/decorators'
 import { env } from '@/env'
@@ -12,6 +12,8 @@ import { processApplication, sendApplicationModal } from './application-function
 @Discord()
 @Category('General')
 export default class ApplicationCommand {
+
+	@Guild('791018916196778034') // Make Command ArisCorp-Only
 
 	@ButtonComponent({ id: 'acceptApplication' })
 	async handleAcceptButton(interaction: ButtonInteraction): Promise<void> {
