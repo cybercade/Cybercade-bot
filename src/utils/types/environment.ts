@@ -22,7 +22,17 @@ export const env = cleanEnv(process.env, {
 	API_PORT: num({ default: undefined }),
 	API_ADMIN_TOKEN: str({ default: undefined }),
 
+	LAVA_HOST: str({ default: undefined }),
+	LAVA_PORT: num({ default: undefined }),
+	LAVA_PASSWORD: str({ default: undefined }),
+
 	IMGUR_CLIENT_ID: str({ default: undefined }),
+
+	ARISCORP_FOUNDERS_ROLE_ID: str({ default: undefined }),
+	ARISCORP_MANAGEMENT_ROLE_ID: str({ default: undefined }),
+	ARISCORP_APPLICANT_ROLE_ID: str({ default: undefined }),
+	ARISCORP_BOT_ROLE_ID: str({ default: undefined }),
+	ARISCORP_INTERNAL_CHANNEL_ID: str({ default: undefined }),
 })
 
 export function checkEnvironmentVariables() {
@@ -44,6 +54,14 @@ export function checkEnvironmentVariables() {
 		cleanEnv(process.env, {
 			API_PORT: num(),
 			API_ADMIN_TOKEN: str(),
+		})
+	}
+
+	if (generalConfig.musicPlayer === true) {
+		cleanEnv(process.env, {
+			LAVA_HOST: str(),
+			LAVA_PORT: num(),
+			LAVA_PASSWORD: str(),
 		})
 	}
 

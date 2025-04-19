@@ -1,14 +1,23 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core'
+
+import { CustomBaseEntity } from './BaseEntity'
 
 @Entity()
-export class RssSubscription {
+export class RssSubscription extends CustomBaseEntity {
 
-  @PrimaryKey()
-  guildId!: string;
+	@PrimaryKey({ autoincrement: true })
+  id: number
 
-  @PrimaryKey()
-  channelId!: string;
+	@Property()
+  guildId!: string
 
-  @Property()
-  feedUrl!: string;
+	@Property()
+  channelId!: string
+
+	@Property()
+  feedUrl!: string
+
+	@Property({ nullable: true })
+  lastItem: string
+
 }

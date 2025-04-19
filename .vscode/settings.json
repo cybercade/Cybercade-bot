@@ -41,5 +41,8 @@
         "jsonc",
         "yaml",
         "toml"
-    ]
+    ],
+    "yaml.schemas": {
+        "https://www.artillery.io/schema.json": []
+    }
 }

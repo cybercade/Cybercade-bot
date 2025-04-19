@@ -13,10 +13,12 @@ export const generalConfig: GeneralConfigType = {
 
 	// useful links
 	links: {
-		invite: 'https://www.change_invite_link_here.com',
+		invite: 'https://invite-bot.cyberca.de',
 		supportServer: 'https://discord.com/your_invitation_link',
-		gitRemoteRepo: 'https://github.com/barthofu/tscord',
+		gitRemoteRepo: 'https://github.com/cybercade/cybercade-bot',
 	},
+
+	musicPlayer: true, // enable or not the music player (Lavalink)
 
 	automaticUploadImagesToImgur: false, // enable or not the automatic assets upload
 
@@ -37,6 +39,5 @@ export const generalConfig: GeneralConfigType = {
 
 // global colors
 export const colorsConfig = {
-
 	primary: '#2F3136',
 }

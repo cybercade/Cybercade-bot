@@ -1,3 +1,4 @@
+import { QueueManager } from '@discordx/lava-queue'
 import { ActivityType } from 'discord.js'
 import { Client } from 'discordx'
 
@@ -6,6 +7,9 @@ import { Discord, Injectable, Once, Schedule } from '@/decorators'
 import { Data } from '@/entities'
 import { Database, Logger, Scheduler, Store } from '@/services'
 import { resolveDependency, syncAllGuilds } from '@/utils/functions'
+
+import { lavaPlayerManager } from '../services/MusicManager'
+import { getNode } from '../services/MusicNode'
 
 @Discord()
 @Injectable()
@@ -45,6 +49,11 @@ export default class ReadyEvent {
 
 		// the bot is fully ready
 		this.store.update('ready', e => ({ ...e, bot: true }))
+
+		// start the music queue if music player is enabled
+		if (generalConfig.musicPlayer === true) {
+			lavaPlayerManager.instance = new QueueManager(getNode(client))
+		}
 	}
 
 	@Schedule('*/15 * * * * *') // each 15 seconds
