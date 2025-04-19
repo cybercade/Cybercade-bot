@@ -3,10 +3,10 @@ import { fromMS } from '@discordx/lava-queue'
 import { Category } from '@discordx/utilities'
 import { ApplicationCommandOptionType, CommandInteraction, EmbedBuilder, Message } from 'discord.js'
 import { Client } from 'discordx'
-import { lavaPlayerManager } from 'src/services/MusicManager'
 
 import { generalConfig } from '@/configs'
 import { Discord, Injectable, Slash, SlashGroup } from '@/decorators'
+import { lavaPlayerManager } from '@/services'
 import { simpleErrorEmbed } from '@/utils/functions'
 
 @Discord()
