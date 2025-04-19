@@ -40,6 +40,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./.docker/app/Dockerfile
           push: true # Da Trigger nur auf main ist, können wir immer pushen
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
