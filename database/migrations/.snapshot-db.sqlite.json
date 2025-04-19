@@ -124,6 +124,16 @@
           "nullable": false,
           "length": null,
           "mappedType": "datetime"
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
         }
       },
       "name": "guild",
