@@ -5,6 +5,7 @@ import {
 	PaginationType,
 } from '@discordx/pagination'
 import type {
+	BaseClient,
 	ButtonInteraction,
 	CommandInteraction,
 	MessageActionRowComponentBuilder,
@@ -18,12 +19,17 @@ import {
 	EmbedBuilder,
 	Message,
 } from 'discord.js'
+import { Client } from 'discordx'
 
-import { Service } from '@/decorators'
+import { Injectable, Service } from '@/decorators'
+import { Guild } from '@/entities'
+import { getLocaleFromInteraction, L } from '@/i18n'
+import { getPlayerUi } from '@/utils/functions'
 
 export type TrackChannel = Exclude<TextBasedChannel, PartialGroupDMChannel>
 
 @Service()
+@Injectable()
 export class MusicQueue extends Queue {
 
 	private _channel: TrackChannel | null = null
@@ -78,12 +84,12 @@ export class MusicQueue extends Queue {
 			.setCustomId('btn-loop')
 
 		const row1
-      = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-      	stopButton,
-      	pauseButton,
-      	nextButton,
-      	repeatButton
-      )
+			= new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+				stopButton,
+				pauseButton,
+				nextButton,
+				repeatButton
+			)
 
 		const queueButton = new ButtonBuilder()
 			.setLabel('Queue')
@@ -103,12 +109,12 @@ export class MusicQueue extends Queue {
 			.setCustomId('btn-controls')
 
 		const row2
-      = new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
-      	loopButton,
-      	queueButton,
-      	mixButton,
-      	controlsButton
-      )
+			= new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+				loopButton,
+				queueButton,
+				mixButton,
+				controlsButton
+			)
 
 		return [row1, row2]
 	}
@@ -149,7 +155,7 @@ export class MusicQueue extends Queue {
 		const uriText = uri ? `[${title}](${uri})` : title
 
 		const subText
-      = this.size > 2 ? ` (Total: ${String(this.size)} tracks queued)` : ''
+			= this.size > 2 ? ` (Total: ${String(this.size)} tracks queued)` : ''
 
 		embed.addFields({
 			name: `Now Playing${subText}`,
@@ -169,7 +175,7 @@ export class MusicQueue extends Queue {
 		const emptyProgress = size - progress
 
 		const progressString
-      = block.repeat(progress) + arrow + block.repeat(emptyProgress)
+			= block.repeat(progress) + arrow + block.repeat(emptyProgress)
 
 		const bar = `${this.isPlaying ? '▶️' : '⏸️'} ${progressString}`
 		const currentTime = fromMS(timeNow)
@@ -240,11 +246,11 @@ export class MusicQueue extends Queue {
 		this.lockUpdate = false
 	}
 
-	public async view(
+	public async viewOld(
 		interaction: ButtonInteraction | CommandInteraction
 	): Promise<void> {
 		const queueErrorMessage
-      = '> The queue could not be processed at the moment, please try again later!'
+			= '> The queue could not be processed at the moment, please try again later!'
 		const nowPlayingMessage = (title: string) => `> Playing **${title}**`
 		const pageTimeoutMessage = 60_000 // 6e4
 		const shortPaginationLimit = 5
@@ -337,9 +343,129 @@ export class MusicQueue extends Queue {
 		await pagination.send()
 	}
 
+	public async view(
+		interaction: ButtonInteraction | CommandInteraction,
+		client: Client,
+		guildData: Guild | null
+	): Promise<void> {
+		const deleteDelayMsShort = 3_000 // 3 seconds
+		const deleteDelayMsLong = 10_000 // 10 seconds
+		const locale = getLocaleFromInteraction(interaction)
+
+		if (!this.currentPlaybackTrack) {
+			const pMsg = await interaction.followUp({
+				content: L[locale].ERRORS.MUSIC.NO_QUEUE(),
+				ephemeral: true,
+			})
+
+			if (pMsg instanceof Message) {
+				setTimeout(() => void this.deleteMessage(pMsg), deleteDelayMsShort)
+			}
+
+			return
+		}
+
+		const embed = new EmbedBuilder()
+			.setAuthor({
+				name: L[locale].SHARED.MUSIC.EMBED.CURRENT_PLAYING(),
+				iconURL: interaction.user.avatarURL() ?? '',
+			})
+			.setTitle(this.currentPlaybackTrack.info.title)
+			.setDescription(`Requested by: <@${this.currentPlaybackTrack.userData?.requester}>\n\n${getPlayerUi(this)}`)
+			.addFields(
+				{
+					name: `:notes: ${L[locale].SHARED.MUSIC.EMBED.QUEUE()}`,
+					value: `${this.tracks.map((track, index) => `\`${index}.\` ${track.info.title} \`${fromMS(track.info.length)}\``).join('\n')}`,
+					inline: false,
+				},
+				{
+					name: `:musical_score: ${L[locale].SHARED.MUSIC.EMBED.SONGS()}`,
+					value: this.tracks.length.toString(),
+					inline: true,
+				},
+				{
+					name: `:hourglass: ${L[locale].SHARED.MUSIC.EMBED.LENGTH()}`,
+					value: fromMS(this.tracks.map(track => track.info.length).reduce((a, b) => a + b, 0)),
+					inline: true,
+				},
+				{
+					name: `:page_facing_up: ${L[locale].SHARED.MUSIC.EMBED.PAGE()}`,
+					value: '1',
+					inline: true,
+				}
+			)
+			.setColor(guildData?.color ? Number.parseInt(guildData.color.replace('#', ''), 16) : '#2600ff')
+			.setFooter({
+				text: client.user?.username ?? 'Cyberca.de Bot',
+				iconURL: client.user?.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/1.png',
+			})
+			.setTimestamp()
+
+		if (this.currentPlaybackTrack.info.artworkUrl) embed.setThumbnail(this.currentPlaybackTrack.info.artworkUrl)
+		if (this.currentPlaybackTrack.info.uri) embed.setURL(this.currentPlaybackTrack.info.uri)
+
+		// TODO: Add pagination
+		interaction.followUp({ embeds: [embed] })
+	}
+
 	public async exit(): Promise<void> {
 		this.stopControlUpdate()
 		await super.exit()
+	}
+
+	public async saveSong(interaction: ButtonInteraction | CommandInteraction, client: Client, guildData: Guild | null): Promise<void> {
+		const currentSong = this.currentPlaybackTrack
+		if (!currentSong) {
+			return
+		}
+
+		const locale = getLocaleFromInteraction(interaction)
+
+		const dmChannel = await interaction.user.createDM()
+
+		const embed = new EmbedBuilder()
+			.setAuthor({
+				name: L[locale].SHARED.MUSIC.EMBED.ADDED_PLAYLIST_TO_QUEUE(),
+				iconURL: interaction.user.avatarURL() ?? '',
+			})
+			.setTitle(this.currentPlaybackTrack.info.title)
+			.addFields(
+				{
+					name: `:microphone: ${L[locale].SHARED.MUSIC.EMBED.INTERPRETER()}`,
+					value: this.currentPlaybackTrack.info.author,
+					inline: false,
+				},
+				{
+					name: `:hourglass: ${L[locale].SHARED.MUSIC.EMBED.LENGTH()}`,
+					value: fromMS(this.currentPlaybackTrack.info.length),
+					inline: true,
+				},
+				{
+					name: `:control_knobs: ${L[locale].SHARED.MUSIC.EMBED.REQUESTED_BY()}`,
+					value: `<@${this.currentPlaybackTrack.userData?.requester}>`,
+					inline: true,
+				}
+			)
+			.setColor(guildData?.color ? Number.parseInt(guildData.color.replace('#', ''), 16) : '#2600ff')
+			.setFooter({
+				text: client.user?.username ?? 'Cyberca.de Bot',
+				iconURL: client.user?.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/1.png',
+			})
+			.setTimestamp()
+
+		if (this.currentPlaybackTrack.info.uri) {
+			embed.setURL(this.currentPlaybackTrack.info.uri)
+			embed.addFields({
+				name: `:globe_with_meridians: ${L[locale].SHARED.MUSIC.EMBED.SONG_URL()}`,
+				value: this.currentPlaybackTrack.info.uri,
+				inline: false,
+			})
+		}
+		if (this.currentPlaybackTrack.info.artworkUrl) {
+			embed.setThumbnail(this.currentPlaybackTrack.info.artworkUrl)
+		}
+
+		await dmChannel.send({ embeds: [embed] })
 	}
 
 }
