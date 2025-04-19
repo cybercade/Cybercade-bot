@@ -17,6 +17,7 @@ export default class StopCommand {
 
 	@Slash({
 		name: 'stop',
+		localizationSource: 'COMMANDS.MUSIC.STOP',
 	})
 	async stop(
 		interaction: CommandInteraction,

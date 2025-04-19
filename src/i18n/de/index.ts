@@ -3,121 +3,142 @@ import type { Translation } from '../i18n-types'
 
 const de = {
 	GUARDS: {
-		DISABLED_COMMAND: 'This command is currently disabled.',
-		MAINTENANCE: 'This bot is currently in maintenance mode.',
-		GUILD_ONLY: 'This command can only be used in a server.',
-		NSFW: 'This command can only be used in a NSFW channel.',
+		DISABLED_COMMAND: 'Dieser Befehl ist aktuell deaktiviert.',
+		MAINTENANCE: 'Dieser Bot ist aktuell in Wartungsarbeiten.',
+		GUILD_ONLY: 'Dieser Befehl kann nur in einem Server verwendet werden.',
+		NSFW: 'Dieser Befehl kann nur in einem NSFW-Kanal verwendet werden.',
 	},
 	ERRORS: {
-		UNKNOWN: 'An unknown error occurred.',
+		UNKNOWN: 'Ein unbekannter Fehler ist aufgetreten.',
 		MUSIC: {
-			PLAYER_DISABLED: 'There is no player for this server.',
-			NO_VOICE_CHANNEL: 'You must be in a voice channel to use this command.',
-			NO_QUEUE: 'There is no queue for this server.',
-			NO_TRACK: 'There is no track for this server.',
-			NO_MATCHES: 'There are no matches for your search.',
+			PLAYER_DISABLED: 'Der Musik-Player ist deaktiviert.',
+			NO_MATCHES: 'Es gab keine Treffer für deine Eingabe.',
+			NO_VOICE_CHANNEL: 'Du musst dich in einem Sprachkanal befinden.',
 			NO_PREVIOUS_TRACK: 'There is no previous track in this server.',
 			NO_NEXT_TRACK: 'There is no next track in this server.',
-			NO_VOLUME: 'The volume must be between 0 and 100.',
-			NO_POSITION: 'The position must be between 0 and the length of the track.',
-			NO_TIME: 'The time must be between 0 and the length of the track.',
-			NO_DURATION: 'The duration must be between 0 and the length of the track.',
-			NO_FILTER: 'The filter must be one of the following: {filters}',
 		},
 	},
 	SHARED: {
-		NO_COMMAND_DESCRIPTION: 'No description provided.',
+		NO_COMMAND_DESCRIPTION: 'Keine Beschreibung festgelegt.',
 		MUSIC: {
 			EMBED: {
 				INTERPRETER: 'Interpreter',
-				LENGTH: 'Length',
-				REQUESTED_BY: 'Requested by',
-				ADDED_TO_QUEUE: 'Added to queue',
-				ADDED_PLAYLIST_TO_QUEUE: 'Added playlist to queue',
-				PLAYING: 'Now playing',
-				SONGS: 'Songs',
-				SONG_URL: 'Song URL',
-				SAVED_SONG: 'Saved song',
-				SONG_SAVED: 'Song saved',
-				QUEUE: 'Queue',
-				CURRENT_PLAYING: 'Current playing',
-				PAGE: 'Page',
-				STOPPED_PLAYING: 'Stopped playing',
-				SKIPPED: 'Skipped to the next song!',
+				LENGTH: 'Länge',
+				REQUESTED_BY: 'Abgespielt von',
+				ADDED_TO_QUEUE: 'Zur Warteschlange hinzugefügt',
+				ADDED_PLAYLIST_TO_QUEUE: 'Playlist zur Warteschlang hinzugefügt',
+				PLAYING: 'Aktuell spielend',
+				SONGS: 'Lieder',
+				SONG_URL: 'Lied URL',
+				SAVED_SONG: 'Gespeichertes Lied',
+				SONG_SAVED: 'Lied gespeichert',
+				QUEUE: 'Warteschlange',
+				CURRENT_PLAYING: 'Aktuell spielend',
+				PAGE: 'Seite',
+				STOPPED_PLAYING: 'Musik gestoppt',
+				SKIPPED: 'Zum nächsten Lied gesprungen!',
 			},
 		},
 	},
 	COMMANDS: {
 		INVITE: {
-			DESCRIPTION: 'Invite the bot to your server!',
+			DESCRIPTION: 'Lade den Bot in dein Server ein!',
 			EMBED: {
-				TITLE: 'Invite me on your server!',
-				DESCRIPTION: '[Click here]({link}) to invite me!',
+				TITLE: 'Lade mich zu deinem Server ein!',
+				DESCRIPTION: '[Klicke hier]({link}) um mich einzuladen!',
 			},
 		},
 		PREFIX: {
 			NAME: 'prefix',
-			DESCRIPTION: 'Change the prefix of the bot.',
+			DESCRIPTION: 'Ändere den Präfix für den Bot.',
 			OPTIONS: {
 				PREFIX: {
 					NAME: 'new_prefix',
-					DESCRIPTION: 'The new prefix of the bot.',
+					DESCRIPTION: 'Der neue Präfix für den Bot.',
 				},
 			},
 			EMBED: {
-				DESCRIPTION: 'Prefix changed to `{prefix}`.',
+				DESCRIPTION: 'Präfix geändert zu `{prefix}`.',
 			},
 		},
 		MAINTENANCE: {
-			DESCRIPTION: 'Set the maintenance mode of the bot.',
+			DESCRIPTION: 'Setze den Wartungsmodus für den Bot.',
 			EMBED: {
-				DESCRIPTION: 'Maintenance mode set to `{state}`.',
+				DESCRIPTION: 'Wartungsmodus gesetzt zu `{state}`.',
 			},
 		},
 		STATS: {
-			DESCRIPTION: 'Get some stats about the bot.',
+			DESCRIPTION: 'Zeige Statistiken für den Bot an.',
 			HEADERS: {
-				COMMANDS: 'Commands',
-				GUILDS: 'Guild',
-				ACTIVE_USERS: 'Active Users',
-				USERS: 'Users',
+				COMMANDS: 'Befehle',
+				GUILDS: 'Server',
+				ACTIVE_USERS: 'Aktive Benutzer',
+				USERS: 'Benutzer',
 			},
 		},
 		HELP: {
-			DESCRIPTION: 'Get global help about the bot and its commands',
+			DESCRIPTION: 'Zeige globale Hilfe über den Bot und Befehle',
 			EMBED: {
-				TITLE: 'Help panel',
-				CATEGORY_TITLE: '{category} Commands',
+				TITLE: 'Hilfe',
+				CATEGORY_TITLE: '{category} Befehle',
 			},
 			SELECT_MENU: {
-				TITLE: 'Select a category',
-				CATEGORY_DESCRIPTION: '{category} commands',
+				TITLE: 'Wähle eine Kategorie',
+				CATEGORY_DESCRIPTION: '{category} Befehle',
 			},
 		},
 		PING: {
 			DESCRIPTION: 'Pong!',
-			MESSAGE: '{member} Pong! The message round-trip took {time}ms.{heartbeat}',
+			MESSAGE: '{member} Pong! Die Nachricht brauchte {time}ms.{heartbeat}',
 		},
-		PLAY: {
-			NAME: 'play',
-			DESCRIPTION: 'Play a song or a playlist',
-			OPTIONS: {
-				INPUT: {
-					NAME: 'input',
-					DESCRIPTION: 'The song or playlist to play',
+		MUSIC: {
+			PLAY: {
+				NAME: 'play',
+				DESCRIPTION: 'Spiele ein Lied oder eine Playlist ab',
+				OPTIONS: {
+					INPUT: {
+						NAME: 'eingabe',
+						DESCRIPTION: 'Der song oder die Playlist',
+					},
+					POSITION: {
+						NAME: 'position',
+						DESCRIPTION: 'Als nächstes spielen oder am Ende der Warteschlang hinzufügen?',
+						END: {
+							NAME: 'Am ende',
+						},
+						START: {
+							NAME: 'Als nächstes',
+						},
+					},
 				},
-				POSITION: {
-					NAME: 'position',
-					DESCRIPTION: 'Add the song to the start or end of the queue',
+				EMBED: {
+					ADDED_TO_QUEUE: 'Zur Warteschlange hinzugefügt',
+					PLAYING: 'Aktuell abgespielt',
+					NO_MATCHES: 'Keine Treffer für deine Suche gefunden',
+					NO_TRACKS: 'Keine Lieder gefunden',
+					NO_PLAYLIST: 'Keine Playlist gefunden für deine Suche',
+					NO_PLAYLIST_TRACKS: 'Playlist ist leer',
 				},
 			},
-			EMBED: {
-				ADDED_TO_QUEUE: 'Added to queue',
-				PLAYING: 'Now playing',
-				NO_MATCHES: 'No matches found for your search',
-				NO_TRACKS: 'No tracks found for your search',
-				NO_PLAYLIST: 'No playlist found for your search',
-				NO_PLAYLIST_TRACKS: 'No tracks found in the playlist',
+			NOWPLAYING: {
+				NAME: 'nowplaying',
+				DESCRIPTION: 'Aktuell spielendes Lied und Warteschlange anzeigen lassen',
+			},
+			QUEUE: {
+				NAME: 'queue',
+				DESCRIPTION: 'Aktuell spielendes Lied und Warteschlange anzeigen lassen',
+			},
+			SAVE: {
+				NAME: 'save',
+				DESCRIPTION: 'Aktuell spielendes Lied speichern',
+			},
+			STOP: {
+				NAME: 'stop',
+				DESCRIPTION: 'Musik stoppen',
+			},
+			SKIP: {
+				NAME: 'skip',
+				DESCRIPTION: 'Spiele das nächste Lied in der Warteschlange',
 			},
 		},
 		APPLICATION: {

@@ -23,14 +23,15 @@ export default class PlayCommand {
 
 	@Slash({
 		name: 'play',
+		localizationSource: 'COMMANDS.MUSIC.PLAY',
 	})
 	@Slash({
 		name: 'p',
 	})
 	async play(
 		@SlashOption({
-			description: 'input',
 			name: 'input',
+			localizationSource: 'COMMANDS.MUSIC.PLAY.OPTIONS.INPUT',
 			required: true,
 			type: ApplicationCommandOptionType.String,
 		})
@@ -38,16 +39,18 @@ export default class PlayCommand {
 		@SlashChoice({
 			name: 'Als letztes',
 			value: 'end',
+			localizationSource: 'COMMANDS.MUSIC.PLAY.OPTIONS.POSITION.END',
 		})
 		@SlashChoice({
 			name: 'Als nächstes',
 			value: 'start',
+			localizationSource: 'COMMANDS.MUSIC.PLAY.OPTIONS.POSITION.START',
 		})
 		@SlashOption({
-			description: 'position',
 			name: 'position',
 			type: ApplicationCommandOptionType.String,
 			required: false,
+			localizationSource: 'COMMANDS.MUSIC.PLAY.OPTIONS.POSITION',
 		})
 		position: string,
 		interaction: CommandInteraction,

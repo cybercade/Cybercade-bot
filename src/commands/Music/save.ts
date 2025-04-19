@@ -21,6 +21,7 @@ export default class SaveCommand {
 
 	@Slash({
 		name: 'save',
+		localizationSource: 'COMMANDS.MUSIC.SAVE',
 	})
 	async save(
 		interaction: CommandInteraction,

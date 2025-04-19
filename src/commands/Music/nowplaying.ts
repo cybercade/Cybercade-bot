@@ -22,11 +22,11 @@ export default class QueueCommand {
 	) {}
 
 	@Slash({
-		name: 'queue',
-		localizationSource: 'COMMANDS.MUSIC.QUEUE',
+		name: 'nowplaying',
+		localizationSource: 'COMMANDS.MUSIC.NOWPLAYING',
 	})
 	@Slash({
-		name: 'q',
+		name: 'np',
 	})
 	async queue(
 		interaction: CommandInteraction,

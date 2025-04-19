@@ -43,21 +43,13 @@ type RootTranslation = {
 			 */
 			PLAYER_DISABLED: string
 			/**
-			 * Y​o​u​ ​m​u​s​t​ ​b​e​ ​i​n​ ​a​ ​v​o​i​c​e​ ​c​h​a​n​n​e​l​ ​t​o​ ​u​s​e​ ​t​h​i​s​ ​c​o​m​m​a​n​d​.
-			 */
-			NO_VOICE_CHANNEL: string
-			/**
-			 * T​h​e​r​e​ ​i​s​ ​n​o​ ​q​u​e​u​e​ ​f​o​r​ ​t​h​i​s​ ​s​e​r​v​e​r​.
-			 */
-			NO_QUEUE: string
-			/**
-			 * T​h​e​r​e​ ​i​s​ ​n​o​ ​t​r​a​c​k​ ​f​o​r​ ​t​h​i​s​ ​s​e​r​v​e​r​.
-			 */
-			NO_TRACK: string
-			/**
 			 * T​h​e​r​e​ ​a​r​e​ ​n​o​ ​m​a​t​c​h​e​s​ ​f​o​r​ ​y​o​u​r​ ​s​e​a​r​c​h​.
 			 */
 			NO_MATCHES: string
+			/**
+			 * D​u​ ​m​u​s​s​t​ ​d​i​c​h​ ​i​n​ ​e​i​n​e​m​ ​S​p​r​a​c​h​k​a​n​a​l​ ​b​e​f​i​n​d​e​n​.
+			 */
+			NO_VOICE_CHANNEL: string
 			/**
 			 * T​h​e​r​e​ ​i​s​ ​n​o​ ​p​r​e​v​i​o​u​s​ ​t​r​a​c​k​ ​i​n​ ​t​h​i​s​ ​s​e​r​v​e​r​.
 			 */
@@ -66,27 +58,6 @@ type RootTranslation = {
 			 * T​h​e​r​e​ ​i​s​ ​n​o​ ​n​e​x​t​ ​t​r​a​c​k​ ​i​n​ ​t​h​i​s​ ​s​e​r​v​e​r​.
 			 */
 			NO_NEXT_TRACK: string
-			/**
-			 * T​h​e​ ​v​o​l​u​m​e​ ​m​u​s​t​ ​b​e​ ​b​e​t​w​e​e​n​ ​0​ ​a​n​d​ ​1​0​0​.
-			 */
-			NO_VOLUME: string
-			/**
-			 * T​h​e​ ​p​o​s​i​t​i​o​n​ ​m​u​s​t​ ​b​e​ ​b​e​t​w​e​e​n​ ​0​ ​a​n​d​ ​t​h​e​ ​l​e​n​g​t​h​ ​o​f​ ​t​h​e​ ​t​r​a​c​k​.
-			 */
-			NO_POSITION: string
-			/**
-			 * T​h​e​ ​t​i​m​e​ ​m​u​s​t​ ​b​e​ ​b​e​t​w​e​e​n​ ​0​ ​a​n​d​ ​t​h​e​ ​l​e​n​g​t​h​ ​o​f​ ​t​h​e​ ​t​r​a​c​k​.
-			 */
-			NO_TIME: string
-			/**
-			 * T​h​e​ ​d​u​r​a​t​i​o​n​ ​m​u​s​t​ ​b​e​ ​b​e​t​w​e​e​n​ ​0​ ​a​n​d​ ​t​h​e​ ​l​e​n​g​t​h​ ​o​f​ ​t​h​e​ ​t​r​a​c​k​.
-			 */
-			NO_DURATION: string
-			/**
-			 * T​h​e​ ​f​i​l​t​e​r​ ​m​u​s​t​ ​b​e​ ​o​n​e​ ​o​f​ ​t​h​e​ ​f​o​l​l​o​w​i​n​g​:​ ​{​f​i​l​t​e​r​s​}
-			 * @param {string} filters
-			 */
-			NO_FILTER: RequiredParams<'filters'>
 		}
 	}
 	SHARED: {
@@ -284,62 +255,126 @@ type RootTranslation = {
 			 */
 			MESSAGE: RequiredParams<'heartbeat' | 'member' | 'time'>
 		}
-		PLAY: {
-			/**
-			 * p​l​a​y
-			 */
-			NAME: string
-			/**
-			 * P​l​a​y​ ​a​ ​s​o​n​g​ ​o​r​ ​a​ ​p​l​a​y​l​i​s​t
-			 */
-			DESCRIPTION: string
-			OPTIONS: {
-				INPUT: {
-					/**
-					 * i​n​p​u​t
-					 */
-					NAME: string
-					/**
-					 * T​h​e​ ​s​o​n​g​ ​o​r​ ​p​l​a​y​l​i​s​t​ ​t​o​ ​p​l​a​y
-					 */
-					DESCRIPTION: string
+		MUSIC: {
+			PLAY: {
+				/**
+				 * p​l​a​y
+				 */
+				NAME: string
+				/**
+				 * P​l​a​y​ ​a​ ​s​o​n​g​ ​o​r​ ​a​ ​p​l​a​y​l​i​s​t
+				 */
+				DESCRIPTION: string
+				OPTIONS: {
+					INPUT: {
+						/**
+						 * i​n​p​u​t
+						 */
+						NAME: string
+						/**
+						 * T​h​e​ ​s​o​n​g​ ​o​r​ ​p​l​a​y​l​i​s​t​ ​t​o​ ​p​l​a​y
+						 */
+						DESCRIPTION: string
+					}
+					POSITION: {
+						/**
+						 * p​o​s​i​t​i​o​n
+						 */
+						NAME: string
+						/**
+						 * A​d​d​ ​t​h​e​ ​s​o​n​g​ ​t​o​ ​t​h​e​ ​s​t​a​r​t​ ​o​r​ ​e​n​d​ ​o​f​ ​t​h​e​ ​q​u​e​u​e
+						 */
+						DESCRIPTION: string
+						END: {
+							/**
+							 * A​t​ ​t​h​e​ ​e​n​d
+							 */
+							NAME: string
+						}
+						START: {
+							/**
+							 * A​t​ ​t​h​e​ ​s​t​a​r​t
+							 */
+							NAME: string
+						}
+					}
 				}
-				POSITION: {
+				EMBED: {
 					/**
-					 * p​o​s​i​t​i​o​n
+					 * A​d​d​e​d​ ​t​o​ ​q​u​e​u​e
 					 */
-					NAME: string
+					ADDED_TO_QUEUE: string
 					/**
-					 * A​d​d​ ​t​h​e​ ​s​o​n​g​ ​t​o​ ​t​h​e​ ​s​t​a​r​t​ ​o​r​ ​e​n​d​ ​o​f​ ​t​h​e​ ​q​u​e​u​e
+					 * N​o​w​ ​p​l​a​y​i​n​g
 					 */
-					DESCRIPTION: string
+					PLAYING: string
+					/**
+					 * N​o​ ​m​a​t​c​h​e​s​ ​f​o​u​n​d​ ​f​o​r​ ​y​o​u​r​ ​s​e​a​r​c​h
+					 */
+					NO_MATCHES: string
+					/**
+					 * N​o​ ​t​r​a​c​k​s​ ​f​o​u​n​d​ ​f​o​r​ ​y​o​u​r​ ​s​e​a​r​c​h
+					 */
+					NO_TRACKS: string
+					/**
+					 * N​o​ ​p​l​a​y​l​i​s​t​ ​f​o​u​n​d​ ​f​o​r​ ​y​o​u​r​ ​s​e​a​r​c​h
+					 */
+					NO_PLAYLIST: string
+					/**
+					 * N​o​ ​t​r​a​c​k​s​ ​f​o​u​n​d​ ​i​n​ ​t​h​e​ ​p​l​a​y​l​i​s​t
+					 */
+					NO_PLAYLIST_TRACKS: string
 				}
 			}
-			EMBED: {
+			NOWPLAYING: {
 				/**
-				 * A​d​d​e​d​ ​t​o​ ​q​u​e​u​e
+				 * n​o​w​p​l​a​y​i​n​g
 				 */
-				ADDED_TO_QUEUE: string
+				NAME: string
 				/**
-				 * N​o​w​ ​p​l​a​y​i​n​g
+				 * V​i​e​w​ ​c​u​r​r​e​n​t​l​y​ ​p​l​a​y​i​n​g​ ​s​o​n​g​ ​a​n​d​ ​q​u​e​u​e
 				 */
-				PLAYING: string
+				DESCRIPTION: string
+			}
+			QUEUE: {
 				/**
-				 * N​o​ ​m​a​t​c​h​e​s​ ​f​o​u​n​d​ ​f​o​r​ ​y​o​u​r​ ​s​e​a​r​c​h
+				 * q​u​e​u​e
 				 */
-				NO_MATCHES: string
+				NAME: string
 				/**
-				 * N​o​ ​t​r​a​c​k​s​ ​f​o​u​n​d​ ​f​o​r​ ​y​o​u​r​ ​s​e​a​r​c​h
+				 * V​i​e​w​ ​c​u​r​r​e​n​t​l​y​ ​p​l​a​y​i​n​g​ ​s​o​n​g​ ​a​n​d​ ​q​u​e​u​e
 				 */
-				NO_TRACKS: string
+				DESCRIPTION: string
+			}
+			SAVE: {
 				/**
-				 * N​o​ ​p​l​a​y​l​i​s​t​ ​f​o​u​n​d​ ​f​o​r​ ​y​o​u​r​ ​s​e​a​r​c​h
+				 * s​a​v​e
 				 */
-				NO_PLAYLIST: string
+				NAME: string
 				/**
-				 * N​o​ ​t​r​a​c​k​s​ ​f​o​u​n​d​ ​i​n​ ​t​h​e​ ​p​l​a​y​l​i​s​t
+				 * S​a​v​e​ ​c​u​r​r​e​n​t​l​y​ ​p​l​a​y​i​n​g​ ​s​o​n​g
 				 */
-				NO_PLAYLIST_TRACKS: string
+				DESCRIPTION: string
+			}
+			STOP: {
+				/**
+				 * s​t​o​p
+				 */
+				NAME: string
+				/**
+				 * S​t​o​p​ ​p​l​a​y​i​n​g​ ​m​u​s​i​c
+				 */
+				DESCRIPTION: string
+			}
+			SKIP: {
+				/**
+				 * s​k​i​p
+				 */
+				NAME: string
+				/**
+				 * P​l​a​y​ ​t​h​e​ ​n​e​x​t​ ​s​o​n​g​ ​i​n​ ​q​u​e​u​e
+				 */
+				DESCRIPTION: string
 			}
 		}
 		APPLICATION: {
@@ -499,21 +534,13 @@ export type TranslationFunctions = {
 			 */
 			PLAYER_DISABLED: () => LocalizedString
 			/**
-			 * You must be in a voice channel to use this command.
-			 */
-			NO_VOICE_CHANNEL: () => LocalizedString
-			/**
-			 * There is no queue for this server.
-			 */
-			NO_QUEUE: () => LocalizedString
-			/**
-			 * There is no track for this server.
-			 */
-			NO_TRACK: () => LocalizedString
-			/**
 			 * There are no matches for your search.
 			 */
 			NO_MATCHES: () => LocalizedString
+			/**
+			 * Du musst dich in einem Sprachkanal befinden.
+			 */
+			NO_VOICE_CHANNEL: () => LocalizedString
 			/**
 			 * There is no previous track in this server.
 			 */
@@ -522,26 +549,6 @@ export type TranslationFunctions = {
 			 * There is no next track in this server.
 			 */
 			NO_NEXT_TRACK: () => LocalizedString
-			/**
-			 * The volume must be between 0 and 100.
-			 */
-			NO_VOLUME: () => LocalizedString
-			/**
-			 * The position must be between 0 and the length of the track.
-			 */
-			NO_POSITION: () => LocalizedString
-			/**
-			 * The time must be between 0 and the length of the track.
-			 */
-			NO_TIME: () => LocalizedString
-			/**
-			 * The duration must be between 0 and the length of the track.
-			 */
-			NO_DURATION: () => LocalizedString
-			/**
-			 * The filter must be one of the following: {filters}
-			 */
-			NO_FILTER: (arg: { filters: string }) => LocalizedString
 		}
 	}
 	SHARED: {
@@ -731,62 +738,126 @@ export type TranslationFunctions = {
 			 */
 			MESSAGE: (arg: { heartbeat: string, member: string, time: number }) => LocalizedString
 		}
-		PLAY: {
-			/**
-			 * play
-			 */
-			NAME: () => LocalizedString
-			/**
-			 * Play a song or a playlist
-			 */
-			DESCRIPTION: () => LocalizedString
-			OPTIONS: {
-				INPUT: {
-					/**
-					 * input
-					 */
-					NAME: () => LocalizedString
-					/**
-					 * The song or playlist to play
-					 */
-					DESCRIPTION: () => LocalizedString
+		MUSIC: {
+			PLAY: {
+				/**
+				 * play
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Play a song or a playlist
+				 */
+				DESCRIPTION: () => LocalizedString
+				OPTIONS: {
+					INPUT: {
+						/**
+						 * input
+						 */
+						NAME: () => LocalizedString
+						/**
+						 * The song or playlist to play
+						 */
+						DESCRIPTION: () => LocalizedString
+					}
+					POSITION: {
+						/**
+						 * position
+						 */
+						NAME: () => LocalizedString
+						/**
+						 * Add the song to the start or end of the queue
+						 */
+						DESCRIPTION: () => LocalizedString
+						END: {
+							/**
+							 * At the end
+							 */
+							NAME: () => LocalizedString
+						}
+						START: {
+							/**
+							 * At the start
+							 */
+							NAME: () => LocalizedString
+						}
+					}
 				}
-				POSITION: {
+				EMBED: {
 					/**
-					 * position
+					 * Added to queue
 					 */
-					NAME: () => LocalizedString
+					ADDED_TO_QUEUE: () => LocalizedString
 					/**
-					 * Add the song to the start or end of the queue
+					 * Now playing
 					 */
-					DESCRIPTION: () => LocalizedString
+					PLAYING: () => LocalizedString
+					/**
+					 * No matches found for your search
+					 */
+					NO_MATCHES: () => LocalizedString
+					/**
+					 * No tracks found for your search
+					 */
+					NO_TRACKS: () => LocalizedString
+					/**
+					 * No playlist found for your search
+					 */
+					NO_PLAYLIST: () => LocalizedString
+					/**
+					 * No tracks found in the playlist
+					 */
+					NO_PLAYLIST_TRACKS: () => LocalizedString
 				}
 			}
-			EMBED: {
+			NOWPLAYING: {
 				/**
-				 * Added to queue
+				 * nowplaying
 				 */
-				ADDED_TO_QUEUE: () => LocalizedString
+				NAME: () => LocalizedString
 				/**
-				 * Now playing
+				 * View currently playing song and queue
 				 */
-				PLAYING: () => LocalizedString
+				DESCRIPTION: () => LocalizedString
+			}
+			QUEUE: {
 				/**
-				 * No matches found for your search
+				 * queue
 				 */
-				NO_MATCHES: () => LocalizedString
+				NAME: () => LocalizedString
 				/**
-				 * No tracks found for your search
+				 * View currently playing song and queue
 				 */
-				NO_TRACKS: () => LocalizedString
+				DESCRIPTION: () => LocalizedString
+			}
+			SAVE: {
 				/**
-				 * No playlist found for your search
+				 * save
 				 */
-				NO_PLAYLIST: () => LocalizedString
+				NAME: () => LocalizedString
 				/**
-				 * No tracks found in the playlist
+				 * Save currently playing song
 				 */
-				NO_PLAYLIST_TRACKS: () => LocalizedString
+				DESCRIPTION: () => LocalizedString
+			}
+			STOP: {
+				/**
+				 * stop
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Stop playing music
+				 */
+				DESCRIPTION: () => LocalizedString
+			}
+			SKIP: {
+				/**
+				 * skip
+				 */
+				NAME: () => LocalizedString
+				/**
+				 * Play the next song in queue
+				 */
+				DESCRIPTION: () => LocalizedString
 			}
 		}
 		APPLICATION: {

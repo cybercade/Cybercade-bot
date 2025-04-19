@@ -17,6 +17,7 @@ export default class SkipCommand {
 
 	@Slash({
 		name: 'skip',
+		localizationSource: 'COMMANDS.MUSIC.SKIP',
 	})
 	async skip(
 		interaction: CommandInteraction,

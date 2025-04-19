@@ -12,17 +12,10 @@ const en = {
 		UNKNOWN: 'An unknown error occurred.',
 		MUSIC: {
 			PLAYER_DISABLED: 'Music player is disabled.',
-			NO_VOICE_CHANNEL: 'You must be in a voice channel to use this command.',
-			NO_QUEUE: 'There is no queue for this server.',
-			NO_TRACK: 'There is no track for this server.',
 			NO_MATCHES: 'There are no matches for your search.',
+			NO_VOICE_CHANNEL: 'Du musst dich in einem Sprachkanal befinden.',
 			NO_PREVIOUS_TRACK: 'There is no previous track in this server.',
 			NO_NEXT_TRACK: 'There is no next track in this server.',
-			NO_VOLUME: 'The volume must be between 0 and 100.',
-			NO_POSITION: 'The position must be between 0 and the length of the track.',
-			NO_TIME: 'The time must be between 0 and the length of the track.',
-			NO_DURATION: 'The duration must be between 0 and the length of the track.',
-			NO_FILTER: 'The filter must be one of the following: {filters:string}',
 		},
 	},
 	SHARED: {
@@ -98,26 +91,54 @@ const en = {
 			DESCRIPTION: 'Pong!',
 			MESSAGE: '{member:string} Pong! The message round-trip took {time:number}ms.{heartbeat:string}',
 		},
-		PLAY: {
-			NAME: 'play',
-			DESCRIPTION: 'Play a song or a playlist',
-			OPTIONS: {
-				INPUT: {
-					NAME: 'input',
-					DESCRIPTION: 'The song or playlist to play',
+		MUSIC: {
+			PLAY: {
+				NAME: 'play',
+				DESCRIPTION: 'Play a song or a playlist',
+				OPTIONS: {
+					INPUT: {
+						NAME: 'input',
+						DESCRIPTION: 'The song or playlist to play',
+					},
+					POSITION: {
+						NAME: 'position',
+						DESCRIPTION: 'Add the song to the start or end of the queue',
+						END: {
+							NAME: 'At the end',
+						},
+						START: {
+							NAME: 'At the start',
+						},
+					},
 				},
-				POSITION: {
-					NAME: 'position',
-					DESCRIPTION: 'Add the song to the start or end of the queue',
+				EMBED: {
+					ADDED_TO_QUEUE: 'Added to queue',
+					PLAYING: 'Now playing',
+					NO_MATCHES: 'No matches found for your search',
+					NO_TRACKS: 'No tracks found for your search',
+					NO_PLAYLIST: 'No playlist found for your search',
+					NO_PLAYLIST_TRACKS: 'No tracks found in the playlist',
 				},
 			},
-			EMBED: {
-				ADDED_TO_QUEUE: 'Added to queue',
-				PLAYING: 'Now playing',
-				NO_MATCHES: 'No matches found for your search',
-				NO_TRACKS: 'No tracks found for your search',
-				NO_PLAYLIST: 'No playlist found for your search',
-				NO_PLAYLIST_TRACKS: 'No tracks found in the playlist',
+			NOWPLAYING: {
+				NAME: 'nowplaying',
+				DESCRIPTION: 'View currently playing song and queue',
+			},
+			QUEUE: {
+				NAME: 'queue',
+				DESCRIPTION: 'View currently playing song and queue',
+			},
+			SAVE: {
+				NAME: 'save',
+				DESCRIPTION: 'Save currently playing song',
+			},
+			STOP: {
+				NAME: 'stop',
+				DESCRIPTION: 'Stop playing music',
+			},
+			SKIP: {
+				NAME: 'skip',
+				DESCRIPTION: 'Play the next song in queue',
 			},
 		},
 		APPLICATION: {
