@@ -16,6 +16,7 @@ const de = {
 			NO_VOICE_CHANNEL: 'Du musst dich in einem Sprachkanal befinden.',
 			NO_PREVIOUS_TRACK: 'There is no previous track in this server.',
 			NO_NEXT_TRACK: 'There is no next track in this server.',
+			NO_QUEUE: 'Es gibt keine Warteschlange auf diesem Server.',
 		},
 	},
 	SHARED: {
