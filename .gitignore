@@ -20,4 +20,3 @@ logs/
 
 # other
 tests/
-.envtest
