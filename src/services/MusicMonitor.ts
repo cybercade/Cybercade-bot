@@ -123,14 +123,22 @@ export class MusicMonitorService {
 		this.initialConnectionAttempted = true
 		this.logger.log('Music Monitor: Initializing Lavalink connection...', 'info')
 
-		await new Promise(resolve => setTimeout(resolve, 5000))
+		// Add a small delay to ensure the bot is fully ready, ws listeners are stable etc.
+		await new Promise(resolve => setTimeout(resolve, 5000)) // 5 seconds delay
 
 		const queueManager = lavaPlayerManager.instance
 
 		if (queueManager?.node) {
+			// Check connection status *after* potential initial connection attempt
+			// Use a short delay/check loop or rely on node events if possible
+			// For simplicity now, just check status. A better approach might involve waiting for 'connect' or 'disconnect' briefly.
+			await new Promise(resolve => setTimeout(resolve, 2000)) // Wait 2s for existing node to potentially connect/disconnect
+
 			if (queueManager.node.connected) {
-				this.logger.log(`Music Monitor: Existing Lavalink node is already connected. Initialization complete.`, 'info')
-				this.setupNodeListeners(queueManager.node) // Setup listeners for existing node
+				this.logger.log(`Music Monitor: Existing Lavalink node is connected. Initialization complete.`, 'info')
+				// Pass identifier if available, otherwise fallback
+				const existingIdentifier = queueManager.node.options.identifier ?? queueManager.node.options.host.address
+				this.setupNodeListeners(queueManager.node, existingIdentifier) // Setup listeners for existing node
 			} else {
 				this.logger.log(`Music Monitor: Existing Lavalink node is disconnected. Attempting connection via API...`, 'warn')
 				await this.replaceNode() // Attempt connection using API
@@ -167,8 +175,11 @@ export class MusicMonitorService {
 			return
 		}
 
-		if (queueManager.node.connected) {
-			// Node is connected, no need to log this every hour unless debugging
+		// Add a check for connecting state as well
+		if (queueManager.node.connected || queueManager.node.connecting) {
+			// Node is connected or trying to connect, no need to intervene
+			this.logger.log(`Music Monitor: Node check - Status: ${queueManager.node.connected ? 'Connected' : 'Connecting'}.`, 'debug') // Optional debug log
+
 			return
 		}
 
@@ -189,7 +200,8 @@ export class MusicMonitorService {
 		}
 		this.isReplacingNode = true
 		let configSource: 'API' | 'None' = 'None' // Only API or None now
-		let connectionAttempted = false
+		// Use a flag to track if connectWithConfig actually succeeded in setting up
+		let setupSuccess = false
 
 		this.logger.log('Music Monitor: Starting node replacement/connection process via API...', 'info')
 
@@ -199,9 +211,14 @@ export class MusicMonitorService {
 			const apiNodeConfig = await this.fetchAndSelectNodeFromApi()
 
 			if (apiNodeConfig) {
-				connectionAttempted = true
-				await this.connectWithConfig(apiNodeConfig)
-				configSource = 'API'
+				// connectWithConfig now returns boolean indicating setup success
+				setupSuccess = await this.connectWithConfig(apiNodeConfig)
+				if (setupSuccess) {
+					configSource = 'API'
+				} else {
+					// connectWithConfig failed internally, log already happened there
+					configSource = 'None'
+				}
 			} else {
 				// API failed or no suitable node found
 				this.logger.log('Music Monitor: Failed to fetch from API or no suitable node found. Cannot connect.', 'error')
@@ -212,40 +229,53 @@ export class MusicMonitorService {
 			configSource = 'None' // Mark as failed
 		} finally {
 			this.isReplacingNode = false
-			// Determine final status based on whether a connection was attempted and successful (or at least setup)
-			const finalSuccess = configSource === 'API' && connectionAttempted
+			// Final success depends on setup being successful
+			const finalSuccess = setupSuccess
 			const level = finalSuccess ? 'info' : 'error'
-			this.logger.log(`Music Monitor: Node replacement/connection process finished (Source: ${configSource}). Flag reset.`, level)
+			this.logger.log(`Music Monitor: Node replacement/connection process finished (Source: ${configSource}, Setup Success: ${finalSuccess}). Flag reset.`, level)
 		}
 	}
 
 	/**
 	 * Performs the actual node destruction, creation, and QueueManager assignment.
+	 * Returns true if the setup process completes without throwing, false otherwise.
 	 * @param config The NodeConfig to use for the new connection.
 	 */
-	private async connectWithConfig(config: NodeConfig): Promise<void> {
-		let connectionSuccess = false
-		const nodeIdentifier = config.identifier ?? config.host // Use the identifier here
-		this.logger.log(`Music Monitor: Attempting to connect using config for...`, 'info')
+	private async connectWithConfig(config: NodeConfig): Promise<boolean> {
+		let setupSuccess = false
+		const nodeIdentifier = config.identifier ?? config.host // We already have it here!
+		this.logger.log(`Music Monitor: Attempting to connect using config for ${nodeIdentifier}...`, 'info')
+		let newNode: Node | null = null // Define newNode outside the try block to access in finally
 
 		try {
-			// 1. Destroy the old node (if it exists)
-			try {
-				if (lavaPlayerManager.instance?.node) {
-					this.logger.log(`Music Monitor: Destroying old node...`, 'info')
-					// Important: Still remove node-specific listeners
-					lavaPlayerManager.instance.node.removeAllListeners()
-					// Destroy the node
-					lavaPlayerManager.instance.node.destroy()
-					this.logger.log('Music Monitor: Old node destroyed.', 'info')
+			// 1. Destroy the old node (if it exists) and cleanup listeners
+			const oldNode = lavaPlayerManager.instance?.node
+			if (oldNode) {
+				// Use optional chaining and nullish coalescing for safety
+				const oldIdentifier = oldNode.options?.identifier ?? oldNode.options?.host?.address ?? 'unknown-old-node'
+				this.logger.log(`Music Monitor: Destroying old node ${oldIdentifier}...`, 'info')
+				try {
+					oldNode.destroy()
+					this.logger.log(`Music Monitor: Old node ${oldIdentifier} destroyed.`, 'info')
+				} catch (destroyError: any) {
+					this.logger.log(`Music Monitor: Error destroying old node ${oldIdentifier}: ${destroyError?.message ?? destroyError}`, 'warn')
 				}
-			} catch (destroyError: any) {
-				this.logger.log(`Music Monitor: Error destroying old node: ${destroyError?.message ?? destroyError}`, 'warn')
 			}
+			this.cleanupWsListeners()
 
-			// 2. Create the new Node instance WITHOUT passing the client
-			this.logger.log(`Music Monitor: Creating new Node instance for...`, 'info')
-			const newNode = new Node({
+			// 2. Verify User ID <<<< THIS IS THE IMPORTANT PART TO ADD/ENSURE IS PRESENT
+			const userIdForNode = this.client.user?.id
+			if (!userIdForNode) {
+				this.logger.log(`Music Monitor: CRITICAL - Client User ID is NOT available at the time of Node creation! Cannot connect.`, 'error')
+
+				return false // Cannot proceed without a user ID
+			}
+			this.logger.log(`Music Monitor: Using Client User ID for node ${nodeIdentifier}: ${userIdForNode}`, 'debug')
+			// <<<< END IMPORTANT PART
+
+			// 3. Create the new Node instance
+			this.logger.log(`Music Monitor: Creating new Node instance for ${nodeIdentifier}...`, 'info')
+			newNode = new Node({ // Assign to the outer scope variable
 				host: {
 					address: config.host,
 					port: config.port,
@@ -255,28 +285,70 @@ export class MusicMonitorService {
 				send: (guildId, packet) => {
 					const guild = this.client.guilds.cache.get(guildId)
 					if (guild) {
+						this.logger.log(`Music Monitor: Sending packet for guild ${guildId} via shard ${guild.shardId}`, 'debug')
 						guild.shard.send(packet)
+					} else {
+						this.logger.log(`Music Monitor: Could not find guild ${guildId} to send packet. Shard issue?`, 'warn')
 					}
 				},
-				userId: this.client.user?.id ?? '',
+				userId: userIdForNode,
 			})
 
-			// 3. Set up event listeners (manual WS listeners + node status listeners)
-			this.logger.log(`Music Monitor: Setting up listeners for...`, 'info')
-			this.setupNodeListeners(newNode) // Pass the NEW node instance
+			// 4. Set up event listeners
+			this.logger.log(`Music Monitor: Setting up listeners for ${nodeIdentifier}...`, 'info')
+			this.setupNodeListeners(newNode, nodeIdentifier)
 
-			// 4. Create a new QueueManager with the new Node and assign it globally
-			this.logger.log(`Music Monitor: Creating and assigning new QueueManager for...`, 'info')
+			// 5. Create a new QueueManager
+			this.logger.log(`Music Monitor: Creating and assigning new QueueManager for ${nodeIdentifier}...`, 'info')
 			lavaPlayerManager.instance = new QueueManager(newNode)
-			this.logger.log(`Music Monitor: New QueueManager assigned with node. Connection attempt initiated.`, 'info')
+			this.logger.log(`Music Monitor: New QueueManager assigned with node ${nodeIdentifier}.`, 'info')
 
-			connectionSuccess = true
-		} catch (error: any) {
-			this.logger.log(`Music Monitor: Error during connectWithConfig for: ${error?.message ?? error}`, 'error')
-			connectionSuccess = false
+			// Explicitly call connect()
+			this.logger.log(`Music Monitor: Explicitly calling connect() for node ${nodeIdentifier}...`, 'info')
+			newNode.connect()
+
+			// Log connecting state
+			await new Promise(resolve => setTimeout(resolve, 100))
+			this.logger.log(`Music Monitor: Node ${nodeIdentifier} connecting state after connect() call: ${newNode.connecting}`, 'debug')
+
+			this.logger.log(`Music Monitor: Connection attempt initiated for ${nodeIdentifier}. Waiting for 'connect' event...`, 'info')
+
+			setupSuccess = true
+		} catch (error: any) { // The error was caught here
+			this.logger.log(`Music Monitor: Error during connectWithConfig for ${nodeIdentifier}: ${error?.message ?? error}`, 'error')
+			setupSuccess = false
 		} finally {
-			const level = connectionSuccess ? 'info' : 'error'
-			this.logger.log(`Music Monitor: connectWithConfig for finished. Setup success: ${connectionSuccess}`, level)
+			const level = setupSuccess ? 'info' : 'error'
+			this.logger.log(`Music Monitor: connectWithConfig for ${nodeIdentifier} finished. Setup success: ${setupSuccess}`, level)
+
+			// Optional: Log final connection status after a short delay
+			if (newNode && setupSuccess) {
+				const identifierForTimeout = nodeIdentifier // Use identifier from outer scope
+				setTimeout(() => {
+					// Check if newNode still exists and hasn't been destroyed in the meantime
+					if (newNode && !newNode.destroyed) {
+						this.logger.log(`Music Monitor: Node ${identifierForTimeout} status after 2s delay: connected=${newNode.connected}, connecting=${newNode.connecting}, destroyed=${newNode.destroyed}`, 'debug')
+					} else {
+						this.logger.log(`Music Monitor: Node ${identifierForTimeout} was destroyed or unavailable after 2s delay.`, 'debug')
+					}
+				}, 2000)
+			}
+		}
+
+		return setupSuccess
+	}
+
+	/** Helper to clean up WS listeners */
+	private cleanupWsListeners() {
+		if (this.currentVoiceStateListener) {
+			this.client.ws.off(GatewayDispatchEvents.VoiceStateUpdate, this.currentVoiceStateListener)
+			this.currentVoiceStateListener = null
+			this.logger.log(`Music Monitor: Removed previous VoiceStateUpdate listener.`, 'debug')
+		}
+		if (this.currentVoiceServerListener) {
+			this.client.ws.off(GatewayDispatchEvents.VoiceServerUpdate, this.currentVoiceServerListener)
+			this.currentVoiceServerListener = null
+			this.logger.log(`Music Monitor: Removed previous VoiceServerUpdate listener.`, 'debug')
 		}
 	}
 
@@ -284,65 +356,63 @@ export class MusicMonitorService {
 	 * Sets up the necessary event listeners for a given Lavalink Node instance.
 	 * Manages listeners attached to client.ws carefully.
 	 * @param node The Node instance to attach listeners to.
+	 * @param nodeIdentifier The identifier (name or host) of the node.
 	 */
-	private setupNodeListeners(node: Node) {
-		this.logger.log(`Music Monitor: Setting up listeners for node...`, 'info')
+	private setupNodeListeners(node: Node, nodeIdentifier: string) {
+		this.logger.log(`Music Monitor: Setting up listeners for node ${nodeIdentifier}...`, 'info')
 
 		// --- Forward Discord Voice Events Manually ---
+		this.cleanupWsListeners()
 
-		// Remove the PREVIOUS listeners added by *this* service, if they exist
-		if (this.currentVoiceStateListener) {
-			this.client.ws.off(GatewayDispatchEvents.VoiceStateUpdate, this.currentVoiceStateListener)
-			this.currentVoiceStateListener = null
-			// this.logger.log(`Music Monitor: Removed previous VoiceStateUpdate listener.`, 'info'); // Optional log
-		}
-		if (this.currentVoiceServerListener) {
-			this.client.ws.off(GatewayDispatchEvents.VoiceServerUpdate, this.currentVoiceServerListener)
-			this.currentVoiceServerListener = null
-			// this.logger.log(`Music Monitor: Removed previous VoiceServerUpdate listener.`, 'info'); // Optional log
-		}
-
-		// Define the new listeners
 		this.currentVoiceStateListener = (data: VoiceStateUpdate) => {
-			// Check instance equality for safety, ensuring we only forward for the *current* active node
 			if (lavaPlayerManager.instance?.node === node) {
-				// this.logger.log(`Music Monitor: Forwarding VoiceStateUpdate for node`, 'debug'); // Optional debug log
 				void node.voiceStateUpdate(data)
 			}
 		}
 
 		this.currentVoiceServerListener = (data: VoiceServerUpdate) => {
-			// Check instance equality for safety
 			if (lavaPlayerManager.instance?.node === node) {
-				// this.logger.log(`Music Monitor: Forwarding VoiceServerUpdate for node`, 'debug'); // Optional debug log
-				void node.voiceServerUpdate(data) // This provides the session ID internally
+				void node.voiceServerUpdate(data)
 			}
 		}
 
-		// Add the new listeners to the client's websocket manager
 		this.client.ws.on(GatewayDispatchEvents.VoiceStateUpdate, this.currentVoiceStateListener)
 		this.client.ws.on(GatewayDispatchEvents.VoiceServerUpdate, this.currentVoiceServerListener)
-		this.logger.log(`Music Monitor: Added new voice event listeners for node.`, 'info')
+		this.logger.log(`Music Monitor: Added new voice event listeners for node ${nodeIdentifier}.`, 'info')
 
 		// --- Node Status Listeners ---
-		// Clear listeners specific to this Node instance (connect, error, disconnect)
-		node.removeAllListeners()
+		// *** Ensure node.removeAllListeners() is NOT present here ***
 
-		node.on('connect', () => {
-			this.logger.log(`Music Monitor: Lavalink Node connected successfully!`, 'info')
-		})
-
-		node.on('error', (error) => {
-			this.logger.log(`Music Monitor: Lavalink Node error: ${error.message}`, 'error')
-		})
-
-		node.on('disconnect', (reason) => {
+		const onConnect = () => {
+			// This message should appear now!
+			this.logger.log(`Music Monitor: Lavalink Node ${nodeIdentifier} connected successfully!`, 'info')
+		}
+		const onError = (error: Error) => {
+			this.logger.log(`Music Monitor: Lavalink Node ${nodeIdentifier} emitted 'error': ${error.message}`, 'error', error)
+			if ('code' in error) console.error(`Error Code: ${(error as any).code}`)
+			if ('reason' in error) console.error(`Error Reason: ${(error as any).reason}`)
+		}
+		const onDisconnect = (reason: { code: number, reason: string } | undefined) => {
 			const reasonText = reason?.reason ?? 'Unknown reason'
 			const reasonCode = reason?.code ?? 'N/A'
-			this.logger.log(`Music Monitor: Lavalink Node disconnected. Reason: ${reasonText} (Code: ${reasonCode})`, 'warn')
-		})
+			// **** USE WARN LEVEL AND ADD STACK ****
+			this.logger.log(`Music Monitor: Node ${nodeIdentifier} emitted 'disconnect'. Reason: ${reasonText} (Code: ${reasonCode})`, 'warn')
+			this.logger.log(`Music Monitor: Full disconnect reason object for ${nodeIdentifier}: ${JSON.stringify(reason)}`, 'debug')
+			console.warn(`[MusicMonitor] Disconnect event stack trace (Node: ${nodeIdentifier}):`, new Error().stack) // Added node identifier here
+			// ***************************************
+		}
 
-		this.logger.log(`Music Monitor: Node status listeners added for node.`, 'info')
+		// Ensure listeners are fresh for this specific node instance
+		node.off('connect', onConnect)
+		node.off('error', onError)
+		node.off('disconnect', onDisconnect)
+
+		// Add the listeners
+		node.on('connect', onConnect)
+		node.on('error', onError)
+		node.on('disconnect', onDisconnect)
+
+		this.logger.log(`Music Monitor: Node status listeners added for node ${nodeIdentifier}.`, 'info')
 	}
 
 	/**
@@ -353,7 +423,7 @@ export class MusicMonitorService {
 		const apiUrl = 'https://lavalink-api.appujet.site/api/nodes' // Consider making this configurable
 		this.logger.log(`Music Monitor: Fetching node list from API: ${apiUrl}`, 'info')
 		try {
-			const response = await axios.get<ApiResponse>(apiUrl, { timeout: 10000 })
+			const response = await axios.get<ApiResponse>(apiUrl, { timeout: 10000 }) // Increased timeout slightly
 
 			if (response.status === 200 && response.data?.nodes?.length > 0) {
 				const availableNodes = response.data.nodes
@@ -361,55 +431,66 @@ export class MusicMonitorService {
 				// --- Refined Filtering ---
 				const filteredNodes = availableNodes.filter((node) => {
 					const managers = node.info?.sourceManagers ?? []
+					// Ensure spotify is checked if needed by your bot's features
 					const hasRequiredSources = managers.includes('youtube')
 						&& managers.includes('soundcloud')
-						&& managers.includes('spotify') // Keep spotify for filtering
+						&& managers.includes('spotify')
 
-					return node.isConnected === true // Must be connected according to API
+					// Check the latest statusHistory entry for online status if available and reliable
+					const latestStatus = node.statusHistory?.[node.statusHistory.length - 1]
+					const isOnline = latestStatus ? latestStatus.online : node.isConnected // Prefer history if available
+
+					return isOnline === true // Must be online (prefer history check)
 						&& node.secure === false // Must not be secure
 						&& hasRequiredSources // Must have required source managers
 				})
 
 				if (filteredNodes.length === 0) {
-					this.logger.log('Music Monitor: No nodes found matching required criteria (connected, not secure, supports youtube/soundcloud/spotify).', 'warn')
+					this.logger.log('Music Monitor: No nodes found matching required criteria (online, not secure, supports youtube/soundcloud).', 'warn')
 
 					return null
 				}
 
 				// --- Refined Sorting ---
 				const sortedNodes = filteredNodes.sort((a, b) => {
-					// 1. Uptime (Descending) - Higher is better
-					const uptimeDiff = (b.uptime ?? 0) - (a.uptime ?? 0)
-					if (uptimeDiff !== 0) return uptimeDiff
+					// Prioritize nodes with lower player count first
+					const playersA = a.connections?.playingPlayers ?? a.connections?.players ?? Number.POSITIVE_INFINITY
+					const playersB = b.connections?.playingPlayers ?? b.connections?.players ?? Number.POSITIVE_INFINITY
+					const playerDiff = playersA - playersB
+					if (playerDiff !== 0) return playerDiff
 
-					// 2. CPU Load (Ascending) - Lower is better (prefer lavalinkLoad if available)
+					// Then CPU Load (Ascending) - Lower is better
 					const cpuLoadA = a.cpu?.lavalinkLoad ?? a.cpu?.systemLoad ?? Number.POSITIVE_INFINITY
 					const cpuLoadB = b.cpu?.lavalinkLoad ?? b.cpu?.systemLoad ?? Number.POSITIVE_INFINITY
 					const cpuDiff = cpuLoadA - cpuLoadB
 					if (cpuDiff !== 0) return cpuDiff
 
-					// 3. Free Memory (Descending) - Higher is better
-					const memoryDiff = (b.memory?.free ?? 0) - (a.memory?.free ?? 0)
-					if (memoryDiff !== 0) return memoryDiff
-
-					// 4. Response Time (Ascending) - Lower is better (use latest history entry)
+					// Then Response Time (Ascending) - Lower is better (use latest history entry)
 					const responseTimeA = a.statusHistory?.[a.statusHistory.length - 1]?.responseTime ?? Number.POSITIVE_INFINITY
 					const responseTimeB = b.statusHistory?.[b.statusHistory.length - 1]?.responseTime ?? Number.POSITIVE_INFINITY
 					const responseDiff = responseTimeA - responseTimeB
 					if (responseDiff !== 0) return responseDiff
 
-					// 5. Bonus for HTTP support (Optional tie-breaker) - Nodes with HTTP come first
+					// Then Uptime (Descending) - Higher is generally more stable
+					const uptimeDiff = (b.uptime ?? 0) - (a.uptime ?? 0)
+					if (uptimeDiff !== 0) return uptimeDiff
+
+					// Then Free Memory (Descending) - Higher is better
+					const memoryDiff = (b.memory?.free ?? 0) - (a.memory?.free ?? 0)
+					if (memoryDiff !== 0) return memoryDiff
+
+					// Bonus for HTTP support (Optional tie-breaker)
 					const hasHttpA = a.info?.sourceManagers?.includes('http') ? 0 : 1
 					const hasHttpB = b.info?.sourceManagers?.includes('http') ? 0 : 1
 					const httpDiff = hasHttpA - hasHttpB
 					if (httpDiff !== 0) return httpDiff
 
-					// If all else is equal, maintain relative order (or sort by identifier)
+					// Fallback sort
 					return (a.identifier ?? '').localeCompare(b.identifier ?? '')
 				})
 
 				const selectedNode = sortedNodes[0]
-				this.logger.log(`Music Monitor: API returned ${availableNodes.length} nodes. Filtered to ${filteredNodes.length}. Selected candidate: ${selectedNode.identifier} (${selectedNode.host}) based on uptime, resources, and sources.`, 'info')
+				this.logger.log(`Music Monitor: API returned ${availableNodes.length} nodes. Filtered to ${filteredNodes.length}. Selected candidate: ${selectedNode.identifier} (${selectedNode.host}) based on players, resources, response time.`, 'info')
 
 				// --- Validation ---
 				if (selectedNode.host && selectedNode.port && selectedNode.password) {
@@ -443,15 +524,18 @@ export class MusicMonitorService {
 	}
 
 	// Optional: Add a cleanup method if your framework supports it (e.g., on bot shutdown)
-	// @On('shutdown')
-	// cleanupListeners() {
-	//     if (this.currentVoiceStateListener) {
-	//         this.client.ws.off(GatewayDispatchEvents.VoiceStateUpdate, this.currentVoiceStateListener);
-	//     }
-	//     if (this.currentVoiceServerListener) {
-	//         this.client.ws.off(GatewayDispatchEvents.VoiceServerUpdate, this.currentVoiceServerListener);
-	//     }
-	//     this.logger.log('Music Monitor: Cleaned up voice event listeners on shutdown.', 'info');
-	// }
+	@On('shutdown') // Assuming your decorator/framework supports this
+	cleanupOnShutdown() {
+		this.logger.log('Music Monitor: Cleaning up on shutdown...', 'info')
+		this.cleanupWsListeners() // Clean up WS listeners
+
+		const node = lavaPlayerManager.instance?.node
+		if (node && !node.destroyed) { // Check if node exists and is not already destroyed
+			const nodeIdentifier = node.options.identifier ?? node.options.host.address
+			this.logger.log(`Music Monitor: Destroying node ${nodeIdentifier} on shutdown.`, 'info')
+			node.destroy()
+		}
+		lavaPlayerManager.instance = null // Clear the instance
+	}
 
 }
