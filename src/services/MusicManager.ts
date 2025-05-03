@@ -1,121 +1,105 @@
-import type { QueueManager } from '@discordx/lava-queue'
-import type {
-	ButtonInteraction,
-	CommandInteraction,
-	Guild,
-	TextBasedChannel,
-} from 'discord.js'
-import { GuildMember, PartialGroupDMChannel } from 'discord.js'
+// src/services/Manager.ts
+import { Client } from 'discordx'
+import * as dotenv from 'dotenv'
+import type { INode, Player, Track } from 'moonlink.js'
+import { Manager } from 'moonlink.js'
+import { delay, inject } from 'tsyringe'
 
-import { Service } from '@/decorators'
+import { Injectable, Service } from '@/decorators'
 
-import { MusicQueue } from './MusicQueue'
-
-export type ParsedCommand = {
-	autoDeleteTimer: NodeJS.Timeout
-	channel: TextBasedChannel
-	guild: Guild
-	member: GuildMember
-	queue: MusicQueue
-}
+dotenv.config() // Lade Umgebungsvariablen aus .env
 
 @Service()
-export class LavaPlayerManager {
+@Injectable()
+export class MoonlinkService {
 
-	instance: QueueManager | null = null
-	COMMAND_INTERACTION_DELETE_DELAY = 60_000
-	BUTTON_INTERACTION_DELETE_DELAY = 3_000
+	public manager: Manager | null = null
 
-	delete(interaction: CommandInteraction | ButtonInteraction): NodeJS.Timeout {
-		const isButton = interaction.isButton()
-		const delay = isButton
-			? this.BUTTON_INTERACTION_DELETE_DELAY
-			: this.COMMAND_INTERACTION_DELETE_DELAY
+	// Injiziere den discord.js Client, den tscord verwaltet
+	constructor(
+		@inject(delay(() => Client)) private client: Client
+	) {}
 
-		return setTimeout(() => {
-			void interaction.deleteReply()
-		}, delay)
+	// Diese Methode wird später von Main.ts aufgerufen, nachdem der Client ready ist
+	initialize() {
+		if (!this.client.user) {
+			console.error('[MoonlinkService] Client not ready yet.')
+
+			return
+		}
+		if (this.manager) {
+			console.warn('[MoonlinkService] Moonlink Manager already initialized.')
+
+			return
+		}
+
+		const nodes: INode[] = [
+			{
+				host: 'lava-all.ajieblogs.eu.org',
+				port: 80,
+				password: 'https://dsc.gg/ajidevserver',
+				secure: false,
+				identifier: 'AjieDev-LDP-NonSSL', // Eindeutiger Name für den Node
+			},
+		]
+
+		this.manager = new Manager({
+			nodes,
+			sendPayload: (guildId: any, payload: any) => {
+				const guild = this.client.guilds.cache.get(guildId)
+				if (guild) guild.shard.send(JSON.parse(payload))
+			},
+			options: {
+				autoResume: true,
+			},
+		})
+
+		console.log('[MoonlinkService] Moonlink Manager created.')
+
+		// Event Listener für Moonlink (optional, aber nützlich für Debugging)
+		this.manager.on('nodeCreate', (node: INode) => {
+			console.log(`[Moonlink] Node "${node.identifier}" created.`)
+		})
+
+		this.manager.on('nodeConnected', (node: INode) => {
+			console.log(`[Moonlink] Node "${node.identifier}" connected.`)
+		})
+
+		this.manager.on('nodeError', (node: INode, error: any) => {
+			console.error(`[Moonlink] Node "${node.identifier}" error:`, error)
+		})
+
+		this.manager.on('trackStart', (player: Player, track: Track) => {
+			console.log(`[Moonlink] Player ${player.guildId} started playing: ${track.title}`)
+			// Hier könntest du eine "Now Playing"-Nachricht senden
+			// const channel = this.client.channels.cache.get(player.textChannel) as TextChannel;
+			// if (channel) channel.send(`Now playing: ${track.title}`);
+		})
+
+		this.manager.on('queueEnd', (player: Player) => {
+			console.log(`[Moonlink] Player ${player.guildId} queue ended.`)
+			// Hier könntest du den Bot den Voice Channel verlassen lassen
+			// setTimeout(() => player.destroy(), 30000); // Zerstöre nach 30s Inaktivität
+		})
+
+		this.client.on('raw', (packet) => {
+			this.manager?.packetUpdate(packet)
+		})
+
+		this.manager.init(this.client.user.id)
+		// In neueren Versionen wird das oft intern beim Instanziieren gemacht.
+		// Prüfe die Moonlink Doku deiner Version!
+
+		console.log('[MoonlinkService] Moonlink Manager initialization sequence complete.')
 	}
 
-	getQueue(guildId: string): MusicQueue | null {
-		if (!this.instance) {
-			return null
+	// Hilfsmethode, um sicherzustellen, dass der Manager initialisiert ist
+	public getManager(): Manager {
+		if (!this.manager) {
+			throw new Error('Moonlink Manager is not initialized yet!')
 		}
 
-		const { node } = this.instance
-
-		return this.instance.queue(guildId, () => new MusicQueue(node, guildId))
-	}
-
-	async parseCommand(
-		interaction: CommandInteraction | ButtonInteraction
-	): Promise<ParsedCommand | null> {
-		await interaction.deferReply()
-		const autoDeleteTimer = this.delete(interaction)
-
-		if (
-			!interaction.channel
-			|| !(interaction.member instanceof GuildMember)
-			|| !interaction.guild
-			|| interaction.channel instanceof PartialGroupDMChannel
-		) {
-			await interaction.followUp({
-				content: 'The command could not be processed. Please try again',
-			})
-
-			return null
-		}
-
-		if (!interaction.member.voice.channelId) {
-			await interaction.followUp({
-				content: 'Join a voice channel first',
-			})
-
-			return null
-		}
-
-		const bot = interaction.guild.members.cache.get(interaction.client.user.id)
-
-		if (!bot) {
-			await interaction.followUp({
-				content: 'Having difficulty finding my place in this world',
-			})
-
-			return null
-		}
-
-		const queue = this.getQueue(interaction.guild.id)
-
-		if (!queue) {
-			await interaction.followUp({
-				content: 'The player is not ready yet, please wait',
-			})
-
-			return null
-		}
-
-		if (bot.voice.channelId === null) {
-			queue.setChannel(interaction.channel)
-			await queue.guildPlayer.join({
-				channel: interaction.member.voice.channelId,
-			})
-		} else if (interaction.member.voice.channelId !== bot.voice.channelId) {
-			await interaction.followUp({
-				content: 'join to my voice channel',
-			})
-
-			return null
-		}
-
-		return {
-			autoDeleteTimer,
-			channel: interaction.channel,
-			guild: interaction.guild,
-			member: interaction.member,
-			queue,
-		}
+		return this.manager
 	}
 
 }
-
-export const lavaPlayerManager = new LavaPlayerManager()
