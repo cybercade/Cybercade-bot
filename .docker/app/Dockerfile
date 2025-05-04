@@ -11,11 +11,11 @@ FROM node:20.11-alpine as dependencies
     WORKDIR /app
 
     COPY package.json .
-    COPY package-lock.json .
+    COPY pnpm-lock.yaml .
 
     # install deps
     RUN apk add --no-cache --virtual .build-deps alpine-sdk python3 && \
-        npm ci --silent && \
+    npm install -g pnpm && pnpm install --frozen-lockfile && \
         apk del .build-deps
 
 # ======================
@@ -32,14 +32,14 @@ FROM node:20.11-alpine as builder
 
     # copy build files from dependencies stage
     COPY --from=dependencies /app/package.json .
-    COPY --from=dependencies /app/package-lock.json .
+    COPY --from=dependencies /app/pnpm-lock.yaml .
     COPY --from=dependencies /app/node_modules /app/node_modules
 
     # install plugin dependencies
-    RUN npm run install:plugins
+    RUN pnpm run install:plugins
 
     # build the project
-    RUN npm run build
+    RUN pnpm run build
 
 # ========================
 # ===== Prepare stage ====
@@ -51,12 +51,12 @@ FROM node:20.11-alpine as prepare
 
     # copy build files from builder stage
     COPY --from=builder /app/build /app/build
-    COPY --from=builder /app/package.json /app/package.json
-    COPY --from=builder /app/package-lock.json /app/package-lock.json
+    COPY --from=builder /app/package.json .
+    COPY --from=builder /app/pnpm-lock.yaml .
     COPY --from=builder /app/node_modules /app/node_modules
 
     # purge dev dependencies
-    RUN npm prune --omit=dev
+    RUN pnpm prune --prod
 
 # =====================
 # ===== Run stage =====
@@ -72,9 +72,9 @@ FROM node:20.11-alpine as runner
 
     # copy build files from prepare stage
     COPY --from=prepare /app/build /app/build
-    COPY --from=prepare /app/package.json /app/package.json
-    COPY --from=prepare /app/package-lock.json /app/package-lock.json
+    COPY --from=prepare /app/package.json .
+    COPY --from=prepare /app/pnpm-lock.yaml .
     COPY --from=prepare /app/node_modules /app/node_modules
 
     # finaly start the bot
-    CMD ["npm", "run", "start"]
+    CMD ["pnpm", "run", "start"]
