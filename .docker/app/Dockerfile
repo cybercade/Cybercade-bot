@@ -6,7 +6,7 @@
 # ==== Dependencies stage ====
 # ============================
 
-FROM node:20.11-alpine as dependencies
+FROM node:22-alpine as dependencies
 
     WORKDIR /app
 
@@ -22,7 +22,7 @@ FROM node:20.11-alpine as dependencies
 # ===== Build stage ====
 # ======================
 
-FROM node:20.11-alpine as builder
+FROM node:22-alpine as builder
 
     WORKDIR /app
 
@@ -48,7 +48,7 @@ FROM node:20.11-alpine as builder
 # ===== Prepare stage ====
 # ========================
 
-FROM node:20.11-alpine as prepare
+FROM node:22-alpine as prepare
 
     WORKDIR /app
 
@@ -68,7 +68,7 @@ FROM node:20.11-alpine as prepare
 # ===== Run stage =====
 # =====================
 
-FROM node:20.11-alpine as runner
+FROM node:22-alpine as runner
 
     WORKDIR /app
 
