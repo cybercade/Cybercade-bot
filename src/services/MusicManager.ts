@@ -647,7 +647,7 @@ export class MoonlinkService {
 
 					// 1. Check required source managers
 					const managers = node.info?.sourceManagers ?? []
-					const hasRequiredSources = managers.includes('youtube') && managers.includes('soundcloud') // && managers.includes('spotify'); // Add spotify if needed
+					const hasRequiredSources = managers.includes('youtube') && managers.includes('soundcloud') && managers.includes('spotify')
 
 					// 2. Check online status (use latest history entry or isConnected field)
 					const latestStatus = node.statusHistory?.[node.statusHistory.length - 1]

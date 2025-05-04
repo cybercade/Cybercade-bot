@@ -1,14 +1,12 @@
-import { LoadType } from '@discordx/lava-player'
-import { fromMS } from '@discordx/lava-queue'
 import { Category } from '@discordx/utilities'
-import { ApplicationCommandOptionType, CommandInteraction, CommandInteractionOptionResolver, EmbedBuilder, GuildMember, VoiceBasedChannel } from 'discord.js'
+import { ApplicationCommandOptionType, CommandInteraction, EmbedBuilder, GuildMember, VoiceBasedChannel } from 'discord.js'
 import { Client } from 'discordx'
 
 import { generalConfig } from '@/configs'
 import { Discord, Injectable, Slash, SlashChoice, SlashGroup, SlashOption } from '@/decorators'
 import { Guild } from '@/entities'
-import { Database, MoonlinkService } from '@/services'
-import { simpleErrorEmbed } from '@/utils/functions'
+import { Database, Logger, MoonlinkService } from '@/services'
+import { formatDuration, simpleErrorEmbed } from '@/utils/functions'
 
 @Discord()
 @Injectable()
@@ -18,7 +16,8 @@ export default class PlayCommand {
 
 	constructor(
 		private db: Database,
-		private moonlinkService: MoonlinkService
+		private moonlinkService: MoonlinkService,
+		private logger: Logger
 	) { }
 
 	@Slash({
@@ -30,12 +29,12 @@ export default class PlayCommand {
 	})
 	async play(
 		@SlashOption({
-			name: 'input',
-			localizationSource: 'COMMANDS.MUSIC.PLAY.OPTIONS.INPUT',
+			name: 'query',
+			localizationSource: 'COMMANDS.MUSIC.PLAY.OPTIONS.QUERY',
 			required: true,
 			type: ApplicationCommandOptionType.String,
 		})
-		input: string,
+		query: string,
 		@SlashChoice({
 			name: 'Als letztes',
 			value: 'end',
@@ -81,172 +80,156 @@ export default class PlayCommand {
 
 		const guildData = await this.db.get(Guild).findOne({ id: interaction.guildId })
 
-		const results = await manager.search({
-			query: input,
-			requester: interaction.user,
-		})
+		try {
+			const results = await manager.search({
+				query,
+				requester: interaction.user,
+			})
 
-		if (!results || results.loadType === 'error' || results.loadType === 'empty') {
-			return interaction.editReply(`Konnte keine Ergebnisse für "${input}" finden.`)
+			const embed = new EmbedBuilder()
+				.setColor(guildData?.color ? Number.parseInt(guildData.color.replace('#', ''), 16) : '#2600ff')
+				.setFooter({
+					text: client.user?.username ?? 'Cyberca.de Bot',
+					iconURL: client.user?.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/1.png',
+				})
+				.setTimestamp()
+
+			// Erstelle oder hole den Player für diesen Server
+			const player = manager.createPlayer({
+				guildId: interaction.guildId,
+				voiceChannelId: voiceChannel.id,
+				textChannelId: interaction.channelId,
+				autoLeave: true,
+			})
+
+			switch (results.loadType) {
+				case 'error':
+
+				// eslint-disable-next-line no-fallthrough
+				case 'empty':
+					await interaction.editReply({ content: localize.ERRORS.MUSIC.NO_MATCHES() })
+
+					break
+
+				case 'playlist':
+					// eslint-disable-next-line no-case-declarations
+					let imageUrl
+
+					if (query.includes('spotify')) {
+						const resThumbnail = await fetch(
+							`https://open.spotify.com/oembed?url=${query}`
+						)
+						const data = await resThumbnail.json()
+						imageUrl = data.thumbnail_url
+					} else {
+						imageUrl = results.tracks[0].artworkUrl
+					}
+
+					if (query.startsWith('https://www.youtube.com/watch')) {
+						const playlistLink = query.split('list=')[1]
+						embed.setURL(`https://www.youtube.com/playlist?list=${playlistLink}`)
+					} else {
+						embed.setURL(query)
+					}
+
+					embed
+						.setAuthor({
+							name: localize.SHARED.MUSIC.EMBED.ADDED_PLAYLIST_TO_QUEUE(),
+							iconURL: interaction.user.avatarURL() ?? '',
+						})
+						.setTitle(results.playlistInfo.name)
+						.addFields(
+							{
+								name: `:notes: ${localize.SHARED.MUSIC.EMBED.SONGS()}`,
+								value: `${results.tracks.map((track, index) => `${index + 1}. ${track.title}`).join('\n')}`,
+								inline: false,
+							},
+							{
+								name: `:control_knobs: ${localize.SHARED.MUSIC.EMBED.REQUESTED_BY()}`,
+								value: `${results.tracks[0].requestedBy}`,
+								inline: true,
+							}
+						)
+
+					if (imageUrl) embed.setThumbnail(imageUrl)
+
+					// Verbinde den Player mit dem Voice Channel (wenn nicht schon verbunden)
+					if (!player.connected) {
+						await player.connect({
+							setDeaf: true,
+							setMute: false,
+						})
+					}
+
+					for (const track of results.tracks) {
+						const addStatus = player.queue.add(track)
+						this.logger.log(`[Play Command]: Add ${track.title} from playlist ${results.playlistInfo.name} is ${addStatus}`)
+					}
+
+					// Starte die Wiedergabe, wenn der Player nicht bereits spielt
+					if (!player.playing && !player.paused) {
+						await player.play()
+					}
+
+					await interaction.editReply({ embeds: [embed] })
+
+					break
+
+				default:
+					// eslint-disable-next-line no-case-declarations
+					const track = results.tracks[0]
+
+					embed
+						.setAuthor({
+							name: localize.SHARED.MUSIC.EMBED.ADDED_TO_QUEUE(),
+							iconURL: interaction.user.avatarURL() ?? '',
+						})
+						.setTitle(track.title)
+						.addFields(
+							{
+								name: `:microphone: ${localize.SHARED.MUSIC.EMBED.INTERPRETER()}`,
+								value: track.author,
+								inline: false,
+							},
+							{
+								name: `:hourglass: ${localize.SHARED.MUSIC.EMBED.LENGTH()}`,
+								value: formatDuration(track.duration),
+								inline: true,
+							},
+							{
+								name: `:control_knobs: ${localize.SHARED.MUSIC.EMBED.REQUESTED_BY()}`,
+								value: `${track.requestedBy}`,
+								inline: true,
+							}
+						)
+
+					if (track.artworkUrl) embed.setThumbnail(track.artworkUrl)
+					if (track.url) embed.setURL(track.url)
+
+					// Verbinde den Player mit dem Voice Channel (wenn nicht schon verbunden)
+					if (!player.connected) {
+						await player.connect({
+							setDeaf: true,
+							setMute: false,
+						})
+					}
+
+					// eslint-disable-next-line no-case-declarations
+					const addStatus = player.queue.add(track)
+					this.logger.log(`[Play Command]: Add ${track.title} is ${addStatus}`)
+
+					// Starte die Wiedergabe, wenn der Player nicht bereits spielt
+					if (!player.playing && !player.paused) {
+						await player.play()
+					}
+
+					await interaction.editReply({ embeds: [embed] })
+
+					break
+			}
+		} catch {
+
 		}
-
-		// Erstelle oder hole den Player für diesen Server
-		const player = manager.createPlayer({
-			guildId: interaction.guildId,
-			voiceChannelId: voiceChannel.id,
-			textChannelId: interaction.channelId, // Optional: Kanal für "Now Playing" Nachrichten
-			// selfDeaf: true, // Optional: Bot taub schalten
-			// selfMute: false, // Optional: Bot stumm schalten
-		})
-
-		// Verbinde den Player mit dem Voice Channel (wenn nicht schon verbunden)
-		if (!player.connected) {
-			player.connect({
-				setDeaf: false,
-			}) // Bot taub schalten ist üblich
-		}
-
-		const track = results.tracks[0]
-		player.queue.add(track)
-
-		// Starte die Wiedergabe, wenn der Player nicht bereits spielt
-		if (!player.playing && !player.paused) {
-			await player.play()
-		}
-
-		console.log(player)
-
-		// Bestätige dem User
-		await interaction.editReply(`Track **${track.title}** zur Warteschlange hinzugefügt.`)
-
-		// clearTimeout(cmd.autoDeleteTimer)
-		// const { queue } = cmd
-
-		// const isLink = input.startsWith('http://') || input.startsWith('https://')
-		// const searchText = isLink ? input : `ytmsearch:${input}`
-		// const { loadType, data } = await queue.search(searchText)
-
-		// if (loadType === LoadType.ERROR) {
-		// 	await interaction.followUp({
-		// 		content: `${localize.ERRORS.UNKNOWN()} - ${data.cause}`,
-		// 	})
-
-		// 	return
-		// }
-
-		// if (loadType === LoadType.EMPTY) {
-		// 	await interaction.followUp({
-		// 		content: localize.ERRORS.MUSIC.NO_MATCHES(),
-		// 	})
-
-		// 	return
-		// }
-
-		// // Handle songs and searches
-		// if (loadType === LoadType.TRACK || loadType === LoadType.SEARCH) {
-		// 	const track = loadType === LoadType.SEARCH ? data[0] : data
-		// 	if (!track) {
-		// 		await interaction.followUp({
-		// 			content: localize.ERRORS.MUSIC.NO_MATCHES(),
-		// 		})
-
-		// 		return
-		// 	}
-
-		// 	if (position === 'start') {
-		// 		queue.addTrackFirst({ ...track, userData: { requester: interaction.user.id } })
-		// 	} else {
-		// 		queue.addTrack({ ...track, userData: { requester: interaction.user.id } })
-		// 	}
-
-		// 	const embed = new EmbedBuilder()
-		// 		.setAuthor({
-		// 			name: localize.SHARED.MUSIC.EMBED.ADDED_TO_QUEUE(),
-		// 			iconURL: interaction.user.avatarURL() ?? '',
-		// 		})
-		// 		.setTitle(track.info.title)
-		// 		.setURL(track.info.uri ?? '')
-		// 		.addFields(
-		// 			{
-		// 				name: `:microphone: ${localize.SHARED.MUSIC.EMBED.INTERPRETER()}`,
-		// 				value: track.info.author,
-		// 				inline: false,
-		// 			},
-		// 			{
-		// 				name: `:hourglass: ${localize.SHARED.MUSIC.EMBED.LENGTH()}`,
-		// 				value: fromMS(track.info.length),
-		// 				inline: true,
-		// 			},
-		// 			{
-		// 				name: `:control_knobs: ${localize.SHARED.MUSIC.EMBED.REQUESTED_BY()}`,
-		// 				value: `<@${interaction.user.id}>`,
-		// 				inline: true,
-		// 			}
-		// 		)
-		// 		.setColor(guildData?.color ? Number.parseInt(guildData.color.replace('#', ''), 16) : '#2600ff')
-		// 		.setFooter({
-		// 			text: client.user?.username ?? 'Cyberca.de Bot',
-		// 			iconURL: client.user?.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/1.png',
-		// 		})
-		// 		.setTimestamp()
-
-		// 	if (track.info.artworkUrl) embed.setThumbnail(track.info.artworkUrl)
-
-		// 	await interaction.followUp({ embeds: [embed] })
-		// }
-
-		// // Handle playlists
-		// if (loadType === LoadType.PLAYLIST) {
-		// 	if (position === 'start') {
-		// 		queue.addTrackFirst(...data.tracks.map(track => ({ ...track, userData: { requester: interaction.user.id } })))
-		// 	} else {
-		// 		queue.addTrack(...data.tracks.map(track => ({ ...track, userData: { requester: interaction.user.id } })))
-		// 	}
-
-		// 	const embed = new EmbedBuilder()
-		// 		.setAuthor({
-		// 			name: localize.SHARED.MUSIC.EMBED.ADDED_PLAYLIST_TO_QUEUE(),
-		// 			iconURL: interaction.user.avatarURL() ?? '',
-		// 		})
-		// 		.setTitle(data.info.name)
-		// 		.addFields(
-		// 			{
-		// 				name: `:notes: ${localize.SHARED.MUSIC.EMBED.SONGS()}`,
-		// 				value: `${data.tracks.map((track, index) => `${index + 1}. ${track.info.title}`).join('\n')}`,
-		// 				inline: false,
-		// 			},
-		// 			{
-		// 				name: `:control_knobs: ${localize.SHARED.MUSIC.EMBED.REQUESTED_BY()}`,
-		// 				value: `<@${interaction.user.id}>`,
-		// 				inline: true,
-		// 			}
-		// 		)
-		// 		.setColor(guildData?.color ? Number.parseInt(guildData.color.replace('#', ''), 16) : '#2600ff')
-		// 		.setFooter({
-		// 			text: client.user?.username ?? 'Cyberca.de Bot',
-		// 			iconURL: client.user?.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/1.png',
-		// 		})
-		// 		.setTimestamp()
-
-		// 	if (data.tracks[0].info.artworkUrl) embed.setThumbnail(data.tracks[0].info.artworkUrl)
-
-		// 	if (isLink) {
-		// 		if (input.startsWith('https://www.youtube.com/playlist')) {
-		// 			embed.setURL(input)
-		// 		}
-
-		// 		if (input.startsWith('https://www.youtube.com/watch')) {
-		// 			const playlistLink = input.split('list=')[1]
-		// 			embed.setURL(`https://www.youtube.com/playlist?list=${playlistLink}`)
-		// 		}
-		// 	}
-
-		// 	await interaction.followUp({ embeds: [embed] })
-		// }
-
-		// if (!queue.isPlaying) {
-		// 	await queue.playNext()
-		// }
 	}
 
 }
