@@ -1,5 +1,4 @@
-import { QueueManager } from '@discordx/lava-queue'
-import { ActivityType, VoiceState } from 'discord.js'
+import { ActivityType } from 'discord.js'
 import { Client } from 'discordx'
 
 import { generalConfig } from '@/configs'
