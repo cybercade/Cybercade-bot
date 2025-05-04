@@ -35,11 +35,11 @@ FROM node:22-alpine as builder
     COPY --from=dependencies /app/pnpm-lock.yaml .
     COPY --from=dependencies /app/node_modules /app/node_modules
 
-    # Copy pnpm executable from dependencies stage
-    COPY --from=dependencies /usr/local/bin/pnpm /usr/local/bin/
+    # Install pnpm globally in this stage as well
+    RUN npm install -g pnpm
 
     # install plugin dependencies
-    RUN pnpm run install:plugins
+    # RUN pnpm run install:plugins
 
     # build the project
     RUN pnpm run build
@@ -58,8 +58,8 @@ FROM node:22-alpine as prepare
     COPY --from=builder /app/pnpm-lock.yaml .
     COPY --from=builder /app/node_modules /app/node_modules
 
-    # Copy pnpm executable from dependencies stage
-    COPY --from=dependencies /usr/local/bin/pnpm /usr/local/bin/
+    # Install pnpm globally in this stage as well
+    RUN npm install -g pnpm
 
     # purge dev dependencies
     RUN pnpm prune --prod
@@ -81,9 +81,9 @@ FROM node:22-alpine as runner
     COPY --from=prepare /app/package.json .
     COPY --from=prepare /app/pnpm-lock.yaml .
     COPY --from=prepare /app/node_modules /app/node_modules
-    
-    # Copy pnpm executable from dependencies stage
-    COPY --from=dependencies /usr/local/bin/pnpm /usr/local/bin/
+
+    # Install pnpm globally in this stage as well
+    RUN npm install -g pnpm
 
     # finaly start the bot
     CMD ["pnpm", "run", "start"]
