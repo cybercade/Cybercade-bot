@@ -6,23 +6,23 @@
 # ==== Dependencies stage ====
 # ============================
 
-FROM node:22-alpine as dependencies
+FROM node:20.11-alpine as dependencies
 
     WORKDIR /app
 
     COPY package.json .
-    COPY pnpm-lock.yaml .
+    COPY package-lock.json .
 
     # install deps
     RUN apk add --no-cache --virtual .build-deps alpine-sdk python3 && \
-    npm install -g pnpm && pnpm install --frozen-lockfile && \
+        npm ci --silent && \
         apk del .build-deps
 
 # ======================
 # ===== Build stage ====
 # ======================
 
-FROM node:22-alpine as builder
+FROM node:20.11-alpine as builder
 
     WORKDIR /app
 
@@ -32,43 +32,37 @@ FROM node:22-alpine as builder
 
     # copy build files from dependencies stage
     COPY --from=dependencies /app/package.json .
-    COPY --from=dependencies /app/pnpm-lock.yaml .
+    COPY --from=dependencies /app/package-lock.json .
     COPY --from=dependencies /app/node_modules /app/node_modules
 
-    # Install pnpm globally in this stage as well
-    RUN npm install -g pnpm
-
     # install plugin dependencies
-    # RUN pnpm run install:plugins
+    RUN npm run install:plugins
 
     # build the project
-    RUN pnpm run build
+    RUN npm run build
 
 # ========================
 # ===== Prepare stage ====
 # ========================
 
-FROM node:22-alpine as prepare
+FROM node:20.11-alpine as prepare
 
     WORKDIR /app
 
     # copy build files from builder stage
     COPY --from=builder /app/build /app/build
-    COPY --from=builder /app/package.json .
-    COPY --from=builder /app/pnpm-lock.yaml .
+    COPY --from=builder /app/package.json /app/package.json
+    COPY --from=builder /app/package-lock.json /app/package-lock.json
     COPY --from=builder /app/node_modules /app/node_modules
 
-    # Install pnpm globally in this stage as well
-    RUN npm install -g pnpm
-
     # purge dev dependencies
-    RUN pnpm prune --prod
+    RUN npm prune --omit=dev
 
 # =====================
 # ===== Run stage =====
 # =====================
 
-FROM node:22-alpine as runner
+FROM node:20.11-alpine as runner
 
     WORKDIR /app
 
@@ -78,12 +72,9 @@ FROM node:22-alpine as runner
 
     # copy build files from prepare stage
     COPY --from=prepare /app/build /app/build
-    COPY --from=prepare /app/package.json .
-    COPY --from=prepare /app/pnpm-lock.yaml .
+    COPY --from=prepare /app/package.json /app/package.json
+    COPY --from=prepare /app/package-lock.json /app/package-lock.json
     COPY --from=prepare /app/node_modules /app/node_modules
 
-    # Install pnpm globally in this stage as well
-    RUN npm install -g pnpm
-
     # finaly start the bot
-    CMD ["pnpm", "run", "start"]
+    CMD ["npm", "run", "start"]
