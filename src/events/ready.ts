@@ -53,7 +53,7 @@ export default class ReadyEvent {
 			await this.moonlink.initialize()
 			this.logger.log('[Main] Moonlink Service initialized via onReady.')
 		} catch (error) {
-			this.logger.log(`[Main] Failed to initialize Moonlink Service:${error}`, 'error')
+			this.logger.log(`[Main] Failed to initialize Moonlink Service: ${error}`, 'error')
 		}
 
 		// start the music queue if music player is enabled
