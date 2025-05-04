@@ -11,9 +11,9 @@ import { processApplication, sendApplicationModal } from './application-function
 
 @Discord()
 @Category('General')
+@Guild('791018916196778034') // Make Command ArisCorp-Only
 export default class ApplicationCommand {
 
-	@Guild('791018916196778034') // Make Command ArisCorp-Only
 
 	@ButtonComponent({ id: 'acceptApplication' })
 	async handleAcceptButton(interaction: ButtonInteraction): Promise<void> {

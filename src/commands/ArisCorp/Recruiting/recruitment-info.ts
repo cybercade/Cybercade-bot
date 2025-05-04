@@ -11,9 +11,8 @@ import { sendApplicationModal } from './application-function'
 
 @Discord()
 @Category('Admin')
+@Guild('791018916196778034') // Make Command ArisCorp-Only
 export default class RecruitmentInfoCommand {
-
-	@Guild('791018916196778034') // Make Command ArisCorp-Only
 
 	@ButtonComponent({ id: 'addApplication' })
 	@Guard(GuildOnly)
