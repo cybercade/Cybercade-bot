@@ -128,5 +128,10 @@
       "src/i18n/**/!(i18n-types.ts)",
       "src/{events,commands}/**/*.{ts,js}"
     ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sqlite3"
+    ]
   }
 }
