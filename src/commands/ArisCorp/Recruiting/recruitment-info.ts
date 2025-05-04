@@ -1,6 +1,6 @@
 import { Category } from '@discordx/utilities'
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, CommandInteraction, EmbedBuilder } from 'discord.js'
-import { Client, Guard } from 'discordx'
+import { Client, Guard, Guild } from 'discordx'
 
 import { ButtonComponent, Discord, Slash } from '@/decorators'
 import { GuildOnly, UserPermissions } from '@/guards'
@@ -11,6 +11,7 @@ import { sendApplicationModal } from './application-function'
 
 @Discord()
 @Category('Admin')
+@Guild('791018916196778034') // Make Command ArisCorp-Only
 export default class RecruitmentInfoCommand {
 
 	@ButtonComponent({ id: 'addApplication' })

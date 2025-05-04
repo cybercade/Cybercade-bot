@@ -1,15 +1,12 @@
 import { QueueManager } from '@discordx/lava-queue'
-import { ActivityType } from 'discord.js'
+import { ActivityType, VoiceState } from 'discord.js'
 import { Client } from 'discordx'
 
 import { generalConfig } from '@/configs'
-import { Discord, Injectable, Once, Schedule } from '@/decorators'
+import { Discord, Injectable, On, Once, Schedule } from '@/decorators'
 import { Data } from '@/entities'
-import { Database, Logger, Scheduler, Store } from '@/services'
+import { Database, Logger, MoonlinkService, Scheduler, Store } from '@/services'
 import { resolveDependency, syncAllGuilds } from '@/utils/functions'
-
-import { lavaPlayerManager } from '../services/MusicManager'
-import { getNode } from '../services/MusicNode'
 
 @Discord()
 @Injectable()
@@ -19,8 +16,9 @@ export default class ReadyEvent {
 		private db: Database,
 		private logger: Logger,
 		private scheduler: Scheduler,
-		private store: Store
-	) {}
+		private store: Store,
+		private moonlink: MoonlinkService
+	) { }
 
 	private activityIndex = 0
 
@@ -50,10 +48,18 @@ export default class ReadyEvent {
 		// the bot is fully ready
 		this.store.update('ready', e => ({ ...e, bot: true }))
 
-		// start the music queue if music player is enabled
-		if (generalConfig.musicPlayer === true) {
-			lavaPlayerManager.instance = new QueueManager(getNode(client))
+		// Initialisiere den Moonlink Manager, nachdem der Client bereit ist
+		try {
+			await this.moonlink.initialize()
+			this.logger.log('[Main] Moonlink Service initialized via onReady.')
+		} catch (error) {
+			this.logger.log(`[Main] Failed to initialize Moonlink Service: ${error}`, 'error')
 		}
+
+		// start the music queue if music player is enabled
+		// if (generalConfig.musicPlayer === true) {
+		// 	lavaPlayerManager.instance = new QueueManager(getNode(client))
+		// }
 	}
 
 	@Schedule('*/15 * * * * *') // each 15 seconds

@@ -97,7 +97,7 @@ const de = {
 				NAME: 'play',
 				DESCRIPTION: 'Spiele ein Lied oder eine Playlist ab',
 				OPTIONS: {
-					INPUT: {
+					QUERY: {
 						NAME: 'eingabe',
 						DESCRIPTION: 'Der song oder die Playlist',
 					},

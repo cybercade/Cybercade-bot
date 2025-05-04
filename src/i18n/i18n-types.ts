@@ -270,7 +270,7 @@ type RootTranslation = {
 				 */
 				DESCRIPTION: string
 				OPTIONS: {
-					INPUT: {
+					QUERY: {
 						/**
 						 * i​n​p​u​t
 						 */
@@ -757,7 +757,7 @@ export type TranslationFunctions = {
 				 */
 				DESCRIPTION: () => LocalizedString
 				OPTIONS: {
-					INPUT: {
+					QUERY: {
 						/**
 						 * input
 						 */
