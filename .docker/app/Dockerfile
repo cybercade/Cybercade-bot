@@ -75,7 +75,11 @@ FROM node:22-alpine as prepare
     COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 
     # install only production dependencies using pnpm
-    RUN pnpm install --prod --frozen-lockfile
+    RUN apk add --no-cache --virtual .build-deps-prod alpine-sdk python3 make && \
+        echo "Installing production dependencies (with build tools available)..." && \
+        pnpm install --prod --frozen-lockfile && \
+        echo "Removing build tools..." && \
+        apk del .build-deps-prod
 
 # =====================
 # ===== Run stage =====
