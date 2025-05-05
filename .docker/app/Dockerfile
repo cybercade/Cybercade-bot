@@ -83,6 +83,9 @@ FROM node:20.11-alpine as prepare
 
 FROM node:20.11-alpine as runner
 
+    # Install pnpm needed for the CMD
+    RUN npm install -g pnpm
+
     WORKDIR /app
 
     # set production mode
