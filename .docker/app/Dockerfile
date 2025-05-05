@@ -6,7 +6,7 @@
 # ==== Dependencies stage ====
 # ============================
 
-FROM node:20.11-alpine as dependencies
+FROM node:22-alpine as dependencies
 
     # Install pnpm
     RUN npm install -g pnpm
@@ -26,7 +26,7 @@ FROM node:20.11-alpine as dependencies
 # ===== Build stage ====
 # ======================
 
-FROM node:20.11-alpine as builder
+FROM node:22-alpine as builder
 
     # Install pnpm
     RUN npm install -g pnpm
@@ -61,7 +61,7 @@ FROM node:20.11-alpine as builder
 # ===== Prepare stage ====
 # ========================
 
-FROM node:20.11-alpine as prepare
+FROM node:22-alpine as prepare
 
     # Install pnpm
     RUN npm install -g pnpm
@@ -81,7 +81,7 @@ FROM node:20.11-alpine as prepare
 # ===== Run stage =====
 # =====================
 
-FROM node:20.11-alpine as runner
+FROM node:22-alpine as runner
 
     # Install pnpm needed for the CMD
     RUN npm install -g pnpm
