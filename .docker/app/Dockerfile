@@ -83,6 +83,9 @@ FROM node:22-alpine as prepare
 FROM node:22-alpine as runner
     WORKDIR /app
 
+    # Add compatibility library for native modules on Alpine
+    RUN apk add --no-cache libc6-compat
+
     # set production mode
     ARG NODE_ENV=production
     ENV NODE_ENV $NODE_ENV
