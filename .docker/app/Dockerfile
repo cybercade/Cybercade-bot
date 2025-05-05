@@ -19,7 +19,7 @@ FROM node:22-alpine as dependencies
     # install build dependencies needed for native modules, if any
     # install project dependencies using pnpm
     RUN apk add --no-cache --virtual .build-deps alpine-sdk python3 && \
-        pnpm install --frozen-lockfile --ignore-scripts=false && \ # <-- Added --ignore-scripts=false
+        pnpm install --frozen-lockfile --ignore-scripts=false && \
         apk del .build-deps
 
 # ======================
