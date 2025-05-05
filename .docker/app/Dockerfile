@@ -1,6 +1,6 @@
 # This dockerfile has multiple stages in order
-# to optimize the build process time and reduce 
-# the final image size.
+# to optimize the build process time and reduce
+# the final image size using pnpm.
 
 # ============================
 # ==== Dependencies stage ====
@@ -8,14 +8,18 @@
 
 FROM node:20.11-alpine as dependencies
 
+    # Install pnpm
+    RUN npm install -g pnpm
+
     WORKDIR /app
 
     COPY package.json .
-    COPY package-lock.json .
+    COPY pnpm-lock.yaml .
 
-    # install deps
+    # install build dependencies needed for native modules, if any
+    # install project dependencies using pnpm
     RUN apk add --no-cache --virtual .build-deps alpine-sdk python3 && \
-        npm ci --silent && \
+        pnpm install --frozen-lockfile && \
         apk del .build-deps
 
 # ======================
@@ -24,22 +28,34 @@ FROM node:20.11-alpine as dependencies
 
 FROM node:20.11-alpine as builder
 
+    # Install pnpm
+    RUN npm install -g pnpm
+
     WORKDIR /app
 
     # copy source files
     COPY src ./src
     COPY tsconfig.json .
 
-    # copy build files from dependencies stage
+    # copy dependency definitions and installed modules from dependencies stage
     COPY --from=dependencies /app/package.json .
-    COPY --from=dependencies /app/package-lock.json .
-    COPY --from=dependencies /app/node_modules /app/node_modules
+    COPY --from=dependencies /app/pnpm-lock.yaml .
+    # Instead of copying node_modules directly (less ideal with pnpm's store/linking),
+    # copy the pnpm store content for potential caching, or simply rely on reinstalling
+    # using the lockfile for consistency in this stage. For simplicity here, we reinstall.
+    # If you have a complex setup needing the store cache, adjust accordingly.
+    COPY --from=dependencies /app/node_modules ./node_modules
 
-    # install plugin dependencies
-    RUN npm run install:plugins
 
-    # build the project
-    RUN npm run build
+    # Re-link or ensure dependencies are available for build scripts
+    # Often pnpm install might be run again here, or just rely on copied node_modules if sufficient
+    # RUN pnpm install --frozen-lockfile # Uncomment if build scripts need specific linking/binaries setup
+
+    # install plugin dependencies (using pnpm)
+    RUN pnpm run install:plugins # Assuming this script is defined in package.json
+
+    # build the project (using pnpm)
+    RUN pnpm run build
 
 # ========================
 # ===== Prepare stage ====
@@ -47,16 +63,19 @@ FROM node:20.11-alpine as builder
 
 FROM node:20.11-alpine as prepare
 
+    # Install pnpm
+    RUN npm install -g pnpm
+
     WORKDIR /app
 
-    # copy build files from builder stage
+    # copy build artifacts from builder stage
     COPY --from=builder /app/build /app/build
+    # copy dependency definitions
     COPY --from=builder /app/package.json /app/package.json
-    COPY --from=builder /app/package-lock.json /app/package-lock.json
-    COPY --from=builder /app/node_modules /app/node_modules
+    COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 
-    # purge dev dependencies
-    RUN npm prune --omit=dev
+    # install only production dependencies using pnpm
+    RUN pnpm install --prod --frozen-lockfile
 
 # =====================
 # ===== Run stage =====
@@ -70,11 +89,11 @@ FROM node:20.11-alpine as runner
     ARG NODE_ENV=production
     ENV NODE_ENV $NODE_ENV
 
-    # copy build files from prepare stage
+    # copy production dependencies and build artifacts from prepare stage
     COPY --from=prepare /app/build /app/build
     COPY --from=prepare /app/package.json /app/package.json
-    COPY --from=prepare /app/package-lock.json /app/package-lock.json
+    COPY --from=prepare /app/pnpm-lock.yaml /app/pnpm-lock.yaml
     COPY --from=prepare /app/node_modules /app/node_modules
 
-    # finaly start the bot
-    CMD ["npm", "run", "start"]
+    # finally start the bot (using pnpm)
+    CMD ["pnpm", "run", "start"]

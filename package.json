@@ -8,6 +8,7 @@
     "version": "2.4"
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "npm run build:clean && npm run build:compile && npm run install:plugins",
     "build:clean": "rimraf build/",
     "build:compile": "tsc --project tsconfig.json --skipLibCheck && npm run build:alias",
