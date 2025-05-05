@@ -19,7 +19,7 @@ FROM node:22-alpine as dependencies
     # install build dependencies needed for native modules, if any
     # install project dependencies using pnpm
     RUN apk add --no-cache --virtual .build-deps alpine-sdk python3 && \
-        pnpm install --frozen-lockfile && \
+        pnpm install --frozen-lockfile --ignore-scripts=false && \ # <-- Added --ignore-scripts=false
         apk del .build-deps
 
 # ======================
@@ -91,7 +91,7 @@ FROM node:22-alpine as runner
     COPY --from=builder /app/build ./build
     # Copy manifests and PRUNED production node_modules from prepare stage
     COPY --from=prepare /app/package.json ./package.json
-    COPY --from=prepare /app/pnpm-lock.yaml ./pnpm-lock.yaml # Optional
+    # COPY --from=prepare /app/pnpm-lock.yaml ./pnpm-lock.yaml # Optional
     COPY --from=prepare /app/node_modules ./node_modules
 
     # finally start the bot (using pnpm)
