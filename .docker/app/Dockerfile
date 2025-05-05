@@ -38,8 +38,7 @@ FROM node:22-alpine as builder
     COPY tsconfig.json .
 
     # copy dependency definitions and installed modules from dependencies stage
-    COPY --from=dependencies /app/package.json .
-    COPY --from=dependencies /app/pnpm-lock.yaml .
+    COPY --from=dependencies /app/package.json /app/pnpm-lock.yaml .
     # Instead of copying node_modules directly (less ideal with pnpm's store/linking),
     # copy the pnpm store content for potential caching, or simply rely on reinstalling
     # using the lockfile for consistency in this stage. For simplicity here, we reinstall.
@@ -52,7 +51,7 @@ FROM node:22-alpine as builder
     # RUN pnpm install --frozen-lockfile # Uncomment if build scripts need specific linking/binaries setup
 
     # install plugin dependencies (using pnpm)
-    RUN pnpm run install:plugins # Assuming this script is defined in package.json
+    RUN pnpm run install:plugins
 
     # build the project (using pnpm)
     RUN pnpm run build
@@ -69,23 +68,19 @@ FROM node:22-alpine as prepare
     WORKDIR /app
 
     # copy build artifacts from builder stage
-    COPY --from=builder /app/build /app/build
+    # COPY --from=builder /app/build /app/build
     # copy dependency definitions
-    COPY --from=builder /app/package.json /app/package.json
-    COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
+    COPY --from=dependencies /app/package.json /app/pnpm-lock.yaml .
+    COPY --from=dependencies /app/node_modules ./node_modules
 
     # install only production dependencies using pnpm
-    RUN pnpm install --prod --frozen-lockfile
+    RUN pnpm prune --prod
 
 # =====================
 # ===== Run stage =====
 # =====================
 
 FROM node:22-alpine as runner
-
-    # Install pnpm needed for the CMD
-    RUN npm install -g pnpm
-
     WORKDIR /app
 
     # set production mode
@@ -93,10 +88,11 @@ FROM node:22-alpine as runner
     ENV NODE_ENV $NODE_ENV
 
     # copy production dependencies and build artifacts from prepare stage
-    COPY --from=prepare /app/build /app/build
-    COPY --from=prepare /app/package.json /app/package.json
-    COPY --from=prepare /app/pnpm-lock.yaml /app/pnpm-lock.yaml
-    COPY --from=prepare /app/node_modules /app/node_modules
+    COPY --from=builder /app/build ./build
+    # Copy manifests and PRUNED production node_modules from prepare stage
+    COPY --from=prepare /app/package.json ./package.json
+    COPY --from=prepare /app/pnpm-lock.yaml ./pnpm-lock.yaml # Optional
+    COPY --from=prepare /app/node_modules ./node_modules
 
     # finally start the bot (using pnpm)
-    CMD ["pnpm", "run", "start"]
+    CMD ["node", "build/main.js"]
