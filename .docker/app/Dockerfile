@@ -74,16 +74,8 @@ FROM node:22-alpine as prepare
     COPY --from=builder /app/package.json /app/package.json
     COPY --from=builder /app/pnpm-lock.yaml /app/pnpm-lock.yaml
 
-    # STEP 1: Install ALL dependencies using lockfile (with build tools)
-    RUN apk add --no-cache --virtual .build-deps-prod alpine-sdk python3 make && \
-        echo "Installing ALL dependencies (with build tools available)..." && \
-        pnpm install --frozen-lockfile && \
-        echo "Removing build tools..." && \
-        apk del .build-deps-prod
-
-    # STEP 2: Prune development dependencies
-    RUN echo "Pruning development dependencies..." && \
-        pnpm prune --prod
+    # install only production dependencies using pnpm
+    RUN pnpm install --prod --frozen-lockfile
 
 # =====================
 # ===== Run stage =====
