@@ -8,7 +8,7 @@
     "version": "2.4"
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
+    "preinstall": "npx only-allow npm",
     "build": "npm run build:clean && npm run build:compile && npm run install:plugins",
     "build:clean": "rimraf build/",
     "build:compile": "tsc --project tsconfig.json --skipLibCheck && npm run build:alias",
@@ -82,6 +82,7 @@
     "rxeta": "~1.1.2",
     "saveqlite": "~1.1.2",
     "semver": "^7.6.3",
+    "sqlite3": "^5.1.7",
     "stacktrace-parser": "~0.1.10",
     "swagger-ui-express": "~5.0.1",
     "ts-toolbelt": "^9.6.0",
